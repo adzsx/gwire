@@ -1,2 +1,2 @@
-# g-wire
+# gwire
 A Instant messaging service 
