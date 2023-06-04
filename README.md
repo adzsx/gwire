@@ -1,2 +1,2 @@
 # g-wire
-A encrypted Instant messaging service 
+A Instant messaging service 
