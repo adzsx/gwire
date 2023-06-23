@@ -155,7 +155,7 @@ func lnPort(port string, username string, nPorts int, message *[][]string, times
 			reader := bufio.NewReader(os.Stdin)
 
 			// attach username
-			text := "<" + username + "> "
+			text := username + "> "
 			inp, _ := reader.ReadString('\n')
 
 			text += inp
