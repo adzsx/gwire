@@ -17,11 +17,14 @@ type Input struct {
 	Ip       string
 	Port     []string
 	Username string
+	Time     bool
 }
 
 func Format(args []string) (Input, error) {
 
 	input := Input{}
+
+	input.Time = false
 
 	for index, element := range args[0:] {
 		switch element[1:] {
@@ -55,6 +58,8 @@ func Format(args []string) (Input, error) {
 
 		case "u":
 			input.Username = args[index+1]
+		case "t":
+			input.Time = true
 		}
 	}
 
@@ -73,7 +78,7 @@ func Format(args []string) (Input, error) {
 		invalid = append(invalid, "port")
 	}
 
-	if len(invalid) > 0 {
+	if len(invalid) > 0 && input.Action != "listen" {
 		return input, errors.New("Invalid arguments: " + strings.Join(invalid, ", "))
 	}
 
