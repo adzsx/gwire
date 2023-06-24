@@ -1,15 +1,10 @@
 package utils
 
 import (
-	"errors"
+	"log"
 	"net"
 	"strconv"
 	"strings"
-)
-
-var (
-	//errors
-	invalid []string
 )
 
 type Input struct {
@@ -18,9 +13,10 @@ type Input struct {
 	Port     []string
 	Username string
 	Time     bool
+	TimeOut  float64
 }
 
-func Format(args []string) (Input, error) {
+func Format(args []string) Input {
 
 	input := Input{}
 
@@ -33,18 +29,18 @@ func Format(args []string) (Input, error) {
 		case "h":
 
 			if len(args) < index+2 {
-				invalid = append(invalid, "host")
+				log.Fatalln("Error: Host not defined")
 			} else if net.ParseIP(args[index+1]) == nil {
-				invalid = append(invalid, "host")
+				log.Fatalln("Error: Host addres invalid")
 			} else {
 				input.Ip = args[index+1]
 			}
 		case "p":
 
 			if len(args) < index+2 {
-				invalid = append(invalid, "port")
+				log.Fatalln("Error: Port not defined")
 			} else if _, err := strconv.Atoi(args[index+1]); err != nil {
-				invalid = append(invalid, "port")
+				log.Fatalln("Error: Port number invalid")
 			} else {
 
 				if InSlice(args, "-l") {
@@ -60,6 +56,20 @@ func Format(args []string) (Input, error) {
 			input.Username = args[index+1]
 		case "t":
 			input.Time = true
+		case "s":
+
+			if len(args) < index+2 {
+				log.Fatalln("Error: Slowmode value not defined")
+			}
+
+			num, err := strconv.ParseFloat(args[index+1], 64)
+
+			if err != nil {
+				log.Fatalln("Error: Slowmode value invalid")
+			}
+			input.TimeOut = num * 1000
+
+			log.Println(input.TimeOut)
 		}
 	}
 
@@ -71,13 +81,6 @@ func Format(args []string) (Input, error) {
 		input.Username = "anonymous"
 	}
 
-	if input.Ip == "" && !InSlice(invalid, "host") {
-		invalid = append(invalid, "host")
-	}
-	if len(input.Port) == 0 && !InSlice(invalid, "port") {
-		invalid = append(invalid, "port")
-	}
-
 	if InSlice(args, "--test") {
 		input.Action = "test"
 	}
@@ -86,9 +89,5 @@ func Format(args []string) (Input, error) {
 		input.Action = "help"
 	}
 
-	if len(invalid) > 0 && input.Action != "listen" && input.Action != "test" {
-		return input, errors.New("Invalid arguments: " + strings.Join(invalid, ", "))
-	}
-
-	return input, nil
+	return input
 }

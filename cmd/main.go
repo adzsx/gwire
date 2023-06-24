@@ -29,7 +29,7 @@ func main() {
 
 	args := os.Args
 
-	input, err := utils.Format(args)
+	input := utils.Format(args)
 
 	if len(args) < 3 && input.Action != "test" && input.Action != "help" {
 		log.Fatalln("Enter --help for help")
@@ -38,11 +38,6 @@ func main() {
 	if input.Action == "help" {
 		log.Print(help)
 		os.Exit(0)
-	}
-
-	if err != nil {
-		log.Printf("Input Error: %v", err)
-		os.Exit(1)
 	}
 
 	if input.Action == "listen" {

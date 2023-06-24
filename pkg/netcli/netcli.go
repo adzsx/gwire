@@ -40,7 +40,7 @@ func Connect(input utils.Input) {
 		}
 
 		for {
-			time.Sleep(time.Second * 1)
+			time.Sleep(time.Millisecond * time.Duration(input.TimeOut))
 			// Scan line until \n
 			data, err := bufio.NewReader(conn).ReadString('\n')
 			if err != nil {
@@ -66,7 +66,7 @@ func Connect(input utils.Input) {
 		}
 
 		for {
-			time.Sleep(time.Second * 1)
+			time.Sleep(time.Millisecond * time.Duration(input.TimeOut))
 			reader := bufio.NewReader(os.Stdin)
 
 			// attach username
@@ -89,7 +89,7 @@ func Listen(input utils.Input) {
 
 		// wg = WaitGroup (Variable to wait until variable hits 0)
 		wg.Add(1)
-		go lnPort(port, input.Username, len(input.Port), &message, input.Time)
+		go lnPort(input, port, &message)
 	}
 
 	// Wait till wg is 0
@@ -97,9 +97,9 @@ func Listen(input utils.Input) {
 }
 
 // Listener for individual port
-func lnPort(port string, username string, nPorts int, message *[][]string, timestamp bool) {
+func lnPort(input utils.Input, port string, message *[][]string) {
 	log.SetFlags(0)
-	if timestamp {
+	if input.Time {
 		log.SetFlags(log.Ltime)
 	}
 
@@ -121,12 +121,10 @@ func lnPort(port string, username string, nPorts int, message *[][]string, times
 		return
 	}
 
-	log.Printf("Remote Addr: %v\nLocal Addr: %v\n", conn.RemoteAddr(), conn.LocalAddr())
-
 	// Read data
 	go func() {
 		for {
-			time.Sleep(time.Second * 1)
+			time.Sleep(time.Millisecond * time.Duration(input.TimeOut))
 			data, err := bufio.NewReader(conn).ReadString('\n')
 			if err != nil {
 				if err.Error() == "EOF" {
@@ -139,8 +137,8 @@ func lnPort(port string, username string, nPorts int, message *[][]string, times
 			}
 			log.Print(data)
 
-			if nPorts > 1 {
-				for i := 0; i < nPorts-1; i++ {
+			if len(input.Port) > 1 {
+				for i := 0; i < len(input.Port)-1; i++ {
 					*message = append(*message, []string{utils.FilterPort(conn.LocalAddr().String()), data})
 				}
 			}
@@ -151,17 +149,16 @@ func lnPort(port string, username string, nPorts int, message *[][]string, times
 	// Send data from input
 	go func() {
 		for {
-			time.Sleep(time.Second * 1)
 			reader := bufio.NewReader(os.Stdin)
 
 			// attach username
-			text := username + "> "
+			text := input.Username + "> "
 			inp, _ := reader.ReadString('\n')
 
 			text += inp
 
-			if nPorts > 1 {
-				for i := 0; i < nPorts; i++ {
+			if len(input.Port) > 1 {
+				for i := 0; i < len(input.Port); i++ {
 					*message = append(*message, []string{"0", text})
 				}
 			} else {
@@ -171,10 +168,10 @@ func lnPort(port string, username string, nPorts int, message *[][]string, times
 	}()
 
 	//send data from other clients
-	if nPorts > 1 {
+	if len(input.Port) > 1 {
 		go func() {
 			for {
-				time.Sleep(time.Second * 1)
+				time.Sleep(time.Millisecond * time.Duration(input.TimeOut))
 				if len(*message) > 0 {
 					for index, element := range *message {
 						if element[0] != utils.FilterPort(conn.LocalAddr().String()) {
