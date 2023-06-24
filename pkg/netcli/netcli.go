@@ -168,6 +168,7 @@ func lnPort(port string, username string, nPorts int, message *[][]string, times
 	if nPorts > 1 {
 		go func() {
 			for {
+				time.Sleep(time.Second * 1)
 				if len(*message) > 0 {
 					for index, element := range *message {
 						if element[0] != port {

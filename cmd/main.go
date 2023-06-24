@@ -28,13 +28,13 @@ func main() {
 
 	args := os.Args
 
-	if utils.InSlice(args, "-h") {
+	if utils.InSlice(args, "--help") {
 		log.Print(help)
 		os.Exit(0)
 	}
 
 	if len(args) < 3 {
-		log.Fatalln("Enter -h for help")
+		log.Fatalln("Enter --help for help")
 	}
 
 	input, err := utils.Format(args)
