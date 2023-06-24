@@ -1,14 +1,14 @@
 # gwire
-A Instant messaging service 
+A instant messaging, p2p service
 
-# Documentation
-gwire usage:
-	gwire [flags]
+## Features
+- p2p chat system
+- multi-user chat
+- low on cpu and memory
 
-Flags:
-	-h 			help message
-	-l			listen
-	-p port			Open connection on [port]
-	-h host			Connect to [host] Ip
-	-u username		[username] is didsplayed for other users
-	-t			enable timestamps
+
+
+## Contributing
+For small problems pull requersts are welcome, if you have something bigger feel free to open an issue. If you want to collab with me, you can contact me at adzsx@proton.me or at my [website](https://adzsx.github.io/#contact)
+
+# License
