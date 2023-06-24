@@ -27,7 +27,7 @@ func Connect(input utils.Input) {
 
 	if err != nil && strings.Contains(err.Error(), "connect: connection refused") {
 		log.Fatalln("Connection refused by destination")
-		os.Exit(1)
+		os.Exit(0)
 	}
 
 	log.Println("Connected to", input.Ip+":"+input.Port[0])
@@ -46,7 +46,7 @@ func Connect(input utils.Input) {
 			if err != nil {
 				if err.Error() == "EOF" {
 					log.Fatalln("Connection closed by remote host")
-					os.Exit(1)
+					os.Exit(0)
 				}
 				log.Fatalln("Error reading data:", err.Error())
 
@@ -141,7 +141,7 @@ func lnPort(port string, username string, nPorts int, message *[][]string, times
 
 			if nPorts > 1 {
 				for i := 0; i < nPorts-1; i++ {
-					*message = append(*message, []string{utils.FilterIp(conn.RemoteAddr().String()), data})
+					*message = append(*message, []string{utils.FilterPort(conn.LocalAddr().String()), data})
 				}
 			}
 		}
@@ -160,7 +160,13 @@ func lnPort(port string, username string, nPorts int, message *[][]string, times
 
 			text += inp
 
-			conn.Write([]byte(text))
+			if nPorts > 1 {
+				for i := 0; i < nPorts; i++ {
+					*message = append(*message, []string{"0", text})
+				}
+			} else {
+				conn.Write([]byte(text))
+			}
 		}
 	}()
 
@@ -171,9 +177,9 @@ func lnPort(port string, username string, nPorts int, message *[][]string, times
 				time.Sleep(time.Second * 1)
 				if len(*message) > 0 {
 					for index, element := range *message {
-						if element[0] != port {
-							log.Println(element[1])
-							utils.Remove(*message, index)
+						if element[0] != utils.FilterPort(conn.LocalAddr().String()) {
+							conn.Write([]byte(element[1]))
+							*message = utils.Remove(*message, index)
 						}
 					}
 				}

@@ -6,6 +6,7 @@ import (
 
 	"github.com/adzsx/g-wire/pkg/netcli"
 	"github.com/adzsx/g-wire/pkg/utils"
+	"github.com/adzsx/g-wire/test"
 )
 
 var (
@@ -28,16 +29,16 @@ func main() {
 
 	args := os.Args
 
-	if utils.InSlice(args, "--help") {
-		log.Print(help)
-		os.Exit(0)
-	}
+	input, err := utils.Format(args)
 
-	if len(args) < 3 {
+	if len(args) < 3 && input.Action != "test" && input.Action != "help" {
 		log.Fatalln("Enter --help for help")
 	}
 
-	input, err := utils.Format(args)
+	if input.Action == "help" {
+		log.Print(help)
+		os.Exit(0)
+	}
 
 	if err != nil {
 		log.Printf("Input Error: %v", err)
@@ -48,6 +49,8 @@ func main() {
 		netcli.Listen(input)
 	} else if input.Action == "connect" {
 		netcli.Connect(input)
+	} else if input.Action == "test" {
+		test.Test()
 	}
 
 }

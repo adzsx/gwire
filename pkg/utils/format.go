@@ -78,7 +78,15 @@ func Format(args []string) (Input, error) {
 		invalid = append(invalid, "port")
 	}
 
-	if len(invalid) > 0 && input.Action != "listen" {
+	if InSlice(args, "--test") {
+		input.Action = "test"
+	}
+
+	if InSlice(args, "--help") {
+		input.Action = "help"
+	}
+
+	if len(invalid) > 0 && input.Action != "listen" && input.Action != "test" {
 		return input, errors.New("Invalid arguments: " + strings.Join(invalid, ", "))
 	}
 

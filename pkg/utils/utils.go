@@ -29,5 +29,13 @@ func FilterPort(ip string) string {
 }
 
 func Remove(slice [][]string, index int) [][]string {
-	return append(slice[:index], slice[index+1])
+	var final [][]string
+
+	for rn, element := range slice {
+		if rn != index {
+			final = append(final, element)
+		}
+	}
+
+	return final
 }
