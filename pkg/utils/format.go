@@ -24,9 +24,9 @@ func Format(args []string) Input {
 
 	for index, element := range args[0:] {
 		switch element[1:] {
-		case "l":
+		case "l", "-listen":
 			input.Action = "listen"
-		case "h":
+		case "h", "-host":
 
 			if len(args) < index+2 {
 				log.Fatalln("Error: Host not defined")
@@ -35,7 +35,7 @@ func Format(args []string) Input {
 			} else {
 				input.Ip = args[index+1]
 			}
-		case "p":
+		case "p", "-port":
 
 			if len(args) < index+2 {
 				log.Fatalln("Error: Port not defined")
@@ -52,11 +52,11 @@ func Format(args []string) Input {
 				}
 			}
 
-		case "u":
+		case "u", "-username":
 			input.Username = args[index+1]
-		case "t":
+		case "t", "-time":
 			input.Time = true
-		case "s":
+		case "s", "-slowmode":
 
 			if len(args) < index+2 {
 				log.Fatalln("Error: Slowmode value not defined")
@@ -68,12 +68,10 @@ func Format(args []string) Input {
 				log.Fatalln("Error: Slowmode value invalid")
 			}
 			input.TimeOut = num * 1000
-
-			log.Println(input.TimeOut)
 		}
 	}
 
-	if !InSlice(args, "-l") {
+	if input.Action == "" {
 		input.Action = "connect"
 	}
 
@@ -87,6 +85,10 @@ func Format(args []string) Input {
 
 	if InSlice(args, "--help") {
 		input.Action = "help"
+	}
+
+	if InSlice(args, "--version") {
+		input.Action = "version"
 	}
 
 	return input

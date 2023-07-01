@@ -9,6 +9,6 @@ A instant messaging, p2p service
 
 
 ## Contributing
-For small problems pull requersts are welcome, if you have something bigger feel free to open an issue. If you want to collab with me, you can contact me at adzsx@proton.me or at my [website](https://adzsx.github.io/#contact)
+For small problems pull requersts are welcome, if you have something bigger feel free to open an issue. If you want to collab with me, you can contact me at adzsx@proton.me
 
 # [License](https://choosealicense.com/licenses/gpl-3.0/)

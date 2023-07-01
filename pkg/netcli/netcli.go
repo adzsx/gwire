@@ -17,7 +17,7 @@ var (
 )
 
 func Connect(input utils.Input) {
-	log.SetFlags(0)
+  log.SetFlags(0)
 	if input.Time {
 		log.SetFlags(log.Ltime)
 	}
@@ -121,6 +121,8 @@ func lnPort(input utils.Input, port string, message *[][]string) {
 		return
 	}
 
+	log.Printf("Connected to %v", conn.LocalAddr())
+
 	// Read data
 	go func() {
 		for {
@@ -128,7 +130,7 @@ func lnPort(input utils.Input, port string, message *[][]string) {
 			data, err := bufio.NewReader(conn).ReadString('\n')
 			if err != nil {
 				if err.Error() == "EOF" {
-					log.Fatalf("Connection on port %v closed by remote host", port)
+					log.Fatalf("Connection on port %v closed", port)
 					wg.Done()
 					return
 				}
@@ -180,7 +182,7 @@ func lnPort(input utils.Input, port string, message *[][]string) {
 						}
 					}
 				}
-			}
+      }
 		}()
 	}
 }
