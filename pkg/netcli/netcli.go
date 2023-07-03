@@ -9,7 +9,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/adzsx/g-wire/pkg/utils"
+	"github.com/adzsx/gwire/pkg/crypt"
+	"github.com/adzsx/gwire/pkg/utils"
 )
 
 var (
@@ -17,7 +18,7 @@ var (
 )
 
 func Connect(input utils.Input) {
-  log.SetFlags(0)
+	log.SetFlags(0)
 	if input.Time {
 		log.SetFlags(log.Ltime)
 	}
@@ -40,9 +41,17 @@ func Connect(input utils.Input) {
 		}
 
 		for {
+
 			time.Sleep(time.Millisecond * time.Duration(input.TimeOut))
-			// Scan line until \n
-			data, err := bufio.NewReader(conn).ReadString('\n')
+
+			//Read data
+			//Make buffer for read data
+			buffer := make([]byte, 16384)
+			//Write length of message to bytes, message to buffer
+			bytes, err := conn.Read(buffer)
+			// Iterate for length over message
+			data := string(buffer[:bytes])
+
 			if err != nil {
 				if err.Error() == "EOF" {
 					log.Fatalln("Connection closed by remote host")
@@ -52,10 +61,13 @@ func Connect(input utils.Input) {
 
 			}
 
-			log.Print(data)
+			if len(input.Key) != 0 {
+				log.Print(crypt.DecryptAES(data, input.Key))
+			} else {
+				log.Print(data)
+			}
 
 		}
-
 	}()
 
 	// Send data
@@ -75,7 +87,16 @@ func Connect(input utils.Input) {
 
 			text += inp
 
-			conn.Write([]byte(text))
+			if len(text) > 16384 {
+				log.Println("Message cant be over 16384 characters long")
+				break
+			}
+
+			if len(input.Key) != 0 {
+				conn.Write([]byte(crypt.EncryptAES(text, input.Key)))
+			} else {
+				conn.Write([]byte(text))
+			}
 		}
 	}()
 
@@ -127,7 +148,15 @@ func lnPort(input utils.Input, port string, message *[][]string) {
 	go func() {
 		for {
 			time.Sleep(time.Millisecond * time.Duration(input.TimeOut))
-			data, err := bufio.NewReader(conn).ReadString('\n')
+
+			//Read data
+			//Make buffer for read data
+			buffer := make([]byte, 16384)
+			//Write length of message to bytes, message to buffer
+			bytes, err := conn.Read(buffer)
+			// Iterate for length over message
+			data := string(buffer[:bytes])
+
 			if err != nil {
 				if err.Error() == "EOF" {
 					log.Fatalf("Connection on port %v closed", port)
@@ -137,13 +166,18 @@ func lnPort(input utils.Input, port string, message *[][]string) {
 				log.Fatalln("Error reading data:", err.Error())
 
 			}
-			log.Print(data)
-
-			if len(input.Port) > 1 {
-				for i := 0; i < len(input.Port)-1; i++ {
-					*message = append(*message, []string{utils.FilterPort(conn.LocalAddr().String()), data})
-				}
+			if len(input.Key) != 0 {
+				log.Print(crypt.DecryptAES(data, input.Key))
+				// log.Print(crypt.DecryptAES(data, input.Key))
+			} else {
+				log.Print(data)
 			}
+
+			// if len(input.Port) > 1 {
+			// 	for i := 0; i < len(input.Port)-1; i++ {
+			// 		*message = append(*message, []string{utils.FilterPort(conn.LocalAddr().String()), data})
+			// 	}
+			// }
 		}
 
 	}()
@@ -159,12 +193,21 @@ func lnPort(input utils.Input, port string, message *[][]string) {
 
 			text += inp
 
+			if len(text) > 16834 {
+				log.Println("Message cant be over 16834 characters long")
+			}
+
 			if len(input.Port) > 1 {
 				for i := 0; i < len(input.Port); i++ {
 					*message = append(*message, []string{"0", text})
 				}
 			} else {
-				conn.Write([]byte(text))
+
+				if len(input.Key) != 0 {
+					conn.Write([]byte(crypt.EncryptAES(text, input.Key)))
+				} else {
+					conn.Write([]byte(text))
+				}
 			}
 		}
 	}()
@@ -182,7 +225,7 @@ func lnPort(input utils.Input, port string, message *[][]string) {
 						}
 					}
 				}
-      }
+			}
 		}()
 	}
 }

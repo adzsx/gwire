@@ -2,31 +2,55 @@ package crypt
 
 import (
 	"crypto/aes"
-	"encoding/hex"
-	"fmt"
+	"crypto/cipher"
+	"crypto/rand"
+	"encoding/base64"
+	"io"
+
+	"github.com/adzsx/gwire/pkg/utils"
 )
 
-func EncryptAES(key []byte, plaintext string) string {
-	// create cipher
-	c, _ := aes.NewCipher(key)
+func EncryptAES(text string, key []byte) string {
+	plaintext := []byte(text)
 
-	// allocate space for ciphered data
-	out := make([]byte, len(plaintext))
+	// Create a new AES cipher block based on the key
+	block, err := aes.NewCipher(key)
+	utils.Err(err)
 
-	// encrypt
-	c.Encrypt(out, []byte(plaintext))
-	// return hex string
-	return hex.EncodeToString(out)
+	// Generate a new random IV (initialization vector)
+	iv := make([]byte, aes.BlockSize)
+	_, err = io.ReadFull(rand.Reader, iv)
+	utils.Err(err)
+
+	// Apply AES encryption to the plaintext
+	ciphertext := make([]byte, aes.BlockSize+len(plaintext))
+	stream := cipher.NewCTR(block, iv)
+	stream.XORKeyStream(ciphertext[aes.BlockSize:], plaintext)
+
+	// Concatenate the IV and ciphertext
+	copy(ciphertext[:aes.BlockSize], iv)
+
+	// Encode the ciphertext in base64 for easier storage and transmission
+	encodedCiphertext := base64.StdEncoding.EncodeToString(ciphertext)
+	return string(encodedCiphertext)
 }
 
-func DecryptAES(key []byte, ct string) {
-	ciphertext, _ := hex.DecodeString(ct)
+func DecryptAES(ciphertext string, key []byte) string {
+	// Decode the base64-encoded ciphertext
+	decodedCiphertext, err := base64.StdEncoding.DecodeString(ciphertext)
+	utils.Err(err)
 
-	c, _ := aes.NewCipher(key)
+	// Create a new AES cipher block based on the key
+	block, err := aes.NewCipher(key)
+	utils.Err(err)
+	// Extract the IV from the decoded ciphertext
+	iv := decodedCiphertext[:aes.BlockSize]
+	ciphertextData := decodedCiphertext[aes.BlockSize:]
 
-	pt := make([]byte, len(ciphertext))
-	c.Decrypt(pt, ciphertext)
+	// Apply AES decryption to the ciphertext
+	plaintext := make([]byte, len(ciphertextData))
+	stream := cipher.NewCTR(block, iv)
+	stream.XORKeyStream(plaintext, ciphertextData)
 
-	s := string(pt[:])
-	fmt.Println("DECRYPTED:", s)
+	return string(plaintext)
 }

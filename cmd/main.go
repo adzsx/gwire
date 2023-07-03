@@ -4,9 +4,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/adzsx/g-wire/pkg/netcli"
-	"github.com/adzsx/g-wire/pkg/utils"
-	"github.com/adzsx/g-wire/test"
+	"github.com/adzsx/gwire/pkg/netcli"
+	"github.com/adzsx/gwire/pkg/utils"
 )
 
 var (
@@ -22,9 +21,10 @@ Flags:
 	-u, --username 	[username]	[username] is didsplayed for other users
 	-t, --time			enable timestamps
 	-s, --slowmode	[seconds]	Enable slowmode
+	-e, --encrypt	[password]	Encrypt messages with AES
 	`
 
-	version = "gwire v1.0"
+	version = "gwire v1.1"
 )
 
 func main() {
@@ -40,7 +40,7 @@ func main() {
 	}
 
 	if len(args) < 3 && input.Action != "test" && input.Action != "help" {
-    log.Println("Enter --help for help")
+		log.Println("Enter --help for help")
 	}
 
 	if input.Action == "help" {
@@ -52,8 +52,6 @@ func main() {
 		netcli.Listen(input)
 	} else if input.Action == "connect" {
 		netcli.Connect(input)
-	} else if input.Action == "test" {
-		test.Test()
 	}
 
 }

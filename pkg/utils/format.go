@@ -14,6 +14,7 @@ type Input struct {
 	Username string
 	Time     bool
 	TimeOut  float64
+	Key      []byte
 }
 
 func Format(args []string) Input {
@@ -52,6 +53,15 @@ func Format(args []string) Input {
 				}
 			}
 
+		case "e", "-encrypt":
+			if len(args) < index+2 {
+				log.Fatalln("Error: Key not defined")
+			} else if len(args[index+1]) != 32 {
+				log.Fatalf("Error: Key invalid key length: %v\nKey has to be 32 characters", len(args[index+1]))
+			} else {
+				input.Key = []byte(args[index+1])
+			}
+
 		case "u", "-username":
 			input.Username = args[index+1]
 		case "t", "-time":
@@ -77,10 +87,6 @@ func Format(args []string) Input {
 
 	if input.Username == "" {
 		input.Username = "anonymous"
-	}
-
-	if InSlice(args, "--test") {
-		input.Action = "test"
 	}
 
 	if InSlice(args, "--help") {
