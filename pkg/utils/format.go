@@ -77,6 +77,7 @@ func Format(args []string) Input {
 			if err != nil {
 				log.Fatalln("Error: Slowmode value invalid")
 			}
+
 			input.TimeOut = num * 1000
 		}
 	}

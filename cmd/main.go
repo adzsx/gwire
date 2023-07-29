@@ -24,7 +24,7 @@ Flags:
 	-e, --encrypt	[password]	Encrypt messages with AES
 	`
 
-	version = "gwire v1.1"
+	version = "gwire v1.1.0"
 )
 
 func main() {
@@ -39,8 +39,9 @@ func main() {
 		os.Exit(0)
 	}
 
-	if len(args) < 3 && input.Action != "test" && input.Action != "help" {
+	if len(args) < 3 && input.Action != "help" {
 		log.Println("Enter --help for help")
+		os.Exit(0)
 	}
 
 	if input.Action == "help" {

@@ -185,6 +185,7 @@ func lnPort(input utils.Input, port string, message *[][]string) {
 	// Send data from input
 	go func() {
 		for {
+			time.Sleep(time.Millisecond * time.Duration(input.TimeOut))
 			reader := bufio.NewReader(os.Stdin)
 
 			// attach username
