@@ -1,6 +1,9 @@
 package utils
 
-import "strings"
+import (
+	"log"
+	"strings"
+)
 
 func FilterIp(ip string) string {
 	var final string
@@ -38,4 +41,31 @@ func Remove(slice [][]string, index int) [][]string {
 	}
 
 	return final
+}
+
+func Err(err error) {
+	if err != nil {
+		log.Panic(err)
+	}
+}
+
+func InSlice(s []string, str string) bool {
+	for _, v := range s {
+		if v == str {
+			return true
+		}
+	}
+
+	return false
+}
+
+// Verbose print
+func VPrint(v any, level int) {
+	if time {
+		log.SetFlags(log.Ltime)
+	}
+
+	if verbose >= level {
+		log.Print(v)
+	}
 }

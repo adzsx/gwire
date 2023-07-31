@@ -7,6 +7,11 @@ import (
 	"strings"
 )
 
+var (
+	verbose int
+	time    bool
+)
+
 type Input struct {
 	Action   string
 	Ip       string
@@ -14,7 +19,7 @@ type Input struct {
 	Username string
 	Time     bool
 	TimeOut  float64
-	Key      []byte
+	Enc      string
 }
 
 func Format(args []string) Input {
@@ -27,8 +32,8 @@ func Format(args []string) Input {
 		switch element[1:] {
 		case "l", "-listen":
 			input.Action = "listen"
-		case "h", "-host":
 
+		case "h", "-host":
 			if len(args) < index+2 {
 				log.Fatalln("Error: Host not defined")
 			} else if net.ParseIP(args[index+1]) == nil {
@@ -36,8 +41,8 @@ func Format(args []string) Input {
 			} else {
 				input.Ip = args[index+1]
 			}
-		case "p", "-port":
 
+		case "p", "-port":
 			if len(args) < index+2 {
 				log.Fatalln("Error: Port not defined")
 			} else if _, err := strconv.Atoi(args[index+1]); err != nil {
@@ -54,20 +59,24 @@ func Format(args []string) Input {
 			}
 
 		case "e", "-encrypt":
-			if len(args) < index+2 {
-				log.Fatalln("Error: Key not defined")
+			if len(args) < index+2 || args[index+1][0:1] == "-" {
+				input.Enc = "auto"
+				log.Println("Auto encryption")
 			} else if len(args[index+1]) != 32 {
-				log.Fatalf("Error: Key invalid key length: %v\nKey has to be 32 characters", len(args[index+1]))
-			} else {
-				input.Key = []byte(args[index+1])
+				log.Fatalln("Error: Password has to be 32 characters, not ", len(args[index+1]))
+			} else if len(args[index+1]) == 32 {
+				input.Enc = args[index+1]
+				log.Println("Normal encryption")
 			}
 
 		case "u", "-username":
 			input.Username = args[index+1]
+
 		case "t", "-time":
 			input.Time = true
-		case "s", "-slowmode":
+			time = true
 
+		case "s", "-slowmode":
 			if len(args) < index+2 {
 				log.Fatalln("Error: Slowmode value not defined")
 			}
@@ -79,6 +88,12 @@ func Format(args []string) Input {
 			}
 
 			input.TimeOut = num * 1000
+
+		case "v", "-verbose":
+			verbose = 1
+
+		case "vv":
+			verbose = 2
 		}
 	}
 

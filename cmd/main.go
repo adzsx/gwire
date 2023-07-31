@@ -18,13 +18,14 @@ Flags:
 	-l, --listen			listen
 	-p, --port 	[port]		use port [port]
 	-h, --host 	[host]		Connect to [host]-(Ip)
+	-v(v), --verbose			Show some more info
 	-u, --username 	[username]	[username] is didsplayed for other users
 	-t, --time			enable timestamps
 	-s, --slowmode	[seconds]	Enable slowmode
-	-e, --encrypt	[password]	Encrypt messages with AES
+	-e, --encrypt	([password])	If [password] is given, use AES, if not, encrypt automatic with RSA
 	`
 
-	version = "gwire v1.1.0"
+	version = "gwire v2.0.0"
 )
 
 func main() {
@@ -42,17 +43,16 @@ func main() {
 	if len(args) < 3 && input.Action != "help" {
 		log.Println("Enter --help for help")
 		os.Exit(0)
-	}
-
-	if input.Action == "help" {
+	} else if input.Action == "help" {
 		log.Print(help)
 		os.Exit(0)
 	}
 
 	if input.Action == "listen" {
-		netcli.Listen(input)
+		netcli.HostSetup(input)
+
 	} else if input.Action == "connect" {
-		netcli.Connect(input)
+		netcli.ClientSetup(input)
 	}
 
 }
