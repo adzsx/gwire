@@ -25,7 +25,7 @@ Flags:
 	-e, --encrypt	([password])	If [password] is given, use AES, if not, encrypt automatic with RSA
 	`
 
-	version = "gwire v2.0.0"
+	version = "gwire v1.2.0"
 )
 
 func main() {

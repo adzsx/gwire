@@ -45,7 +45,7 @@ func Remove(slice [][]string, index int) [][]string {
 
 func Err(err error) {
 	if err != nil {
-		log.Panic(err)
+		log.Panic("Error: ", err)
 	}
 }
 
@@ -60,12 +60,12 @@ func InSlice(s []string, str string) bool {
 }
 
 // Verbose print
-func VPrint(v any, level int) {
+func VPrint(v any) {
 	if time {
 		log.SetFlags(log.Ltime)
 	}
 
-	if verbose >= level {
+	if verbose {
 		log.Print(v)
 	}
 }

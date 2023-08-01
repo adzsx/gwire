@@ -15,7 +15,9 @@ import (
 )
 
 var (
-	wg sync.WaitGroup
+	wg      sync.WaitGroup
+	auto    bool
+	success bool
 )
 
 // Set up listener for each port on list
@@ -24,7 +26,9 @@ func HostSetup(input utils.Input) {
 	var message = [][]string{}
 
 	if input.Enc == "auto" {
+		auto = true
 		var err error
+		utils.VPrint("Generating password\n")
 		input.Enc, err = crypt.GenPasswd(32)
 		utils.Err(err)
 	}
@@ -33,11 +37,23 @@ func HostSetup(input utils.Input) {
 
 		// wg = WaitGroup (Variable to wait until variable hits 0)
 		wg.Add(1)
+		utils.VPrint("Setting up listener")
 		conn := listen(input, port)
-		if input.Enc == "auto" {
-			hostRSA(input, conn)
+
+		if auto {
+			utils.VPrint("Starting up encryption")
+			success = hostRSA(input, conn)
 		}
-		go host(input, conn, port, &message)
+
+		if success {
+			utils.VPrint("Setup finished")
+			go host(input, conn, port, &message)
+		} else {
+			log.Println("Encryption setup failed. Aborting connection")
+			conn.Close()
+			wg.Done()
+		}
+
 	}
 
 	// Wait untill wg is 0
@@ -60,7 +76,7 @@ func listen(input utils.Input, port string) net.Conn {
 		os.Exit(0)
 	}
 
-	log.Println("Listening on port", port)
+	utils.VPrint("Listening on port " + port)
 
 	conn, err := ln.Accept()
 	if err != nil {
@@ -69,7 +85,7 @@ func listen(input utils.Input, port string) net.Conn {
 		return conn
 	}
 
-	log.Printf("Connected to %v", conn.LocalAddr())
+	log.Printf("Connected to %v", conn.RemoteAddr())
 
 	return conn
 }
@@ -164,23 +180,29 @@ func host(input utils.Input, conn net.Conn, port string, message *[][]string) {
 	}
 }
 
-func hostRSA(input utils.Input, conn net.Conn) {
+func hostRSA(input utils.Input, conn net.Conn) bool {
 
 	// Make buffer for receiving RSA public key
 
-	utils.VPrint("Waiting for RSA public from "+utils.FilterIp(conn.LocalAddr().String())+"\n", 2)
+	utils.VPrint("Waiting for RSA key from " + utils.FilterIp(conn.RemoteAddr().String()) + "\n")
 	buffer := make([]byte, 4096)
 	bytes, err := conn.Read(buffer)
 	utils.Err(err)
 	sentPublicKey := buffer[:bytes]
 
-	utils.VPrint("Publickey received from "+utils.FilterIp(conn.LocalAddr().String())+"\n", 1)
-
 	// Convert bytes back to public key
 	publicKey, err := x509.ParsePKCS1PublicKey(sentPublicKey)
-	utils.Err(err)
+
+	if err != nil {
+		log.Println("Received data not RSA publickey. Make sure other party has auto encryption enabled")
+		return false
+	}
+
+	utils.VPrint("Publickey received from " + utils.FilterIp(conn.RemoteAddr().String()) + "\n")
 
 	// Send encrypted AES key over connection
 	encKey := crypt.EncryptRSA(*publicKey, []byte(input.Enc))
 	conn.Write(encKey)
+
+	return true
 }

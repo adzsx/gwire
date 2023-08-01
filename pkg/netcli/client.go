@@ -28,14 +28,13 @@ func ClientSetup(input utils.Input) {
 		os.Exit(0)
 	}
 
-	log.Println("Connected to", input.Ip+":"+input.Port[0])
+	log.Println("Connected to", input.Ip+":"+input.Port[0]+"\n")
 
 	if input.Enc == "auto" {
 		input.Enc = clientRSA(input, conn)
 	}
 
-	log.Printf("\nAES Key: \"%v\"\n", input.Enc)
-
+	utils.VPrint("Setup finished\n")
 	client(input, conn)
 }
 
@@ -107,13 +106,17 @@ func client(input utils.Input, conn net.Conn) {
 
 // Func for setting up RSA encryption for the clientcs
 func clientRSA(input utils.Input, conn net.Conn) string {
+
+	utils.VPrint("Generating RSA Keys")
 	var rsaKeys = crypt.GenKeys()
 
 	byteKey := x509.MarshalPKCS1PublicKey(&rsaKeys.PublicKey)
 
+	utils.VPrint("Sending Public Key")
 	conn.Write(byteKey)
 
 	// Wait for host to send password
+	utils.VPrint("Waiting for response...")
 	buffer := make([]byte, 512)
 	bytes, err := conn.Read(buffer)
 	utils.Err(err)
@@ -121,7 +124,7 @@ func clientRSA(input utils.Input, conn net.Conn) string {
 
 	passwd := crypt.DecryptRSA(rsaKeys, data)
 
-	log.Println("Received Password: ", passwd)
+	utils.VPrint("Received Password\n")
 
 	return passwd
 }

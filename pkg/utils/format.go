@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	verbose int
+	verbose bool
 	time    bool
 )
 
@@ -61,12 +61,10 @@ func Format(args []string) Input {
 		case "e", "-encrypt":
 			if len(args) < index+2 || args[index+1][0:1] == "-" {
 				input.Enc = "auto"
-				log.Println("Auto encryption")
 			} else if len(args[index+1]) != 32 {
 				log.Fatalln("Error: Password has to be 32 characters, not ", len(args[index+1]))
 			} else if len(args[index+1]) == 32 {
 				input.Enc = args[index+1]
-				log.Println("Normal encryption")
 			}
 
 		case "u", "-username":
@@ -90,10 +88,7 @@ func Format(args []string) Input {
 			input.TimeOut = num * 1000
 
 		case "v", "-verbose":
-			verbose = 1
-
-		case "vv":
-			verbose = 2
+			verbose = true
 		}
 	}
 
