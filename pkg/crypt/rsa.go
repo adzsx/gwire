@@ -11,7 +11,7 @@ import (
 
 // Generate RSA keys (Private and Public) publicKey = privateKey.PublicKey
 func GenKeys() rsa.PrivateKey {
-	privateKey, err := rsa.GenerateKey(rand.Reader, 4096)
+	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	utils.Err(err)
 
 	return *privateKey

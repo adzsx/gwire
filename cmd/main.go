@@ -18,7 +18,7 @@ Flags:
 	-l, --listen			listen
 	-p, --port 	[port]		use port [port]
 	-h, --host 	[host]		Connect to [host]-(Ip)
-	-v(v), --verbose			Show some more info
+	-v, --verbose		Show some more info
 	-u, --username 	[username]	[username] is didsplayed for other users
 	-t, --time			enable timestamps
 	-s, --slowmode	[seconds]	Enable slowmode
@@ -29,6 +29,7 @@ Flags:
 )
 
 func main() {
+
 	log.SetFlags(0)
 
 	args := os.Args

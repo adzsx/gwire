@@ -15,9 +15,8 @@ import (
 )
 
 var (
-	wg      sync.WaitGroup
-	auto    bool
-	success bool
+	wg   sync.WaitGroup
+	auto bool
 )
 
 // Set up listener for each port on list
@@ -37,27 +36,29 @@ func HostSetup(input utils.Input) {
 
 		// wg = WaitGroup (Variable to wait until variable hits 0)
 		wg.Add(1)
-		utils.VPrint("Setting up listener")
-		conn := listen(input, port)
 
-		if auto {
-			utils.VPrint("Starting up encryption")
-			success = hostRSA(input, conn)
-		}
-
-		if success {
-			utils.VPrint("Setup finished")
-			go host(input, conn, port, &message)
-		} else {
-			log.Println("Encryption setup failed. Aborting connection")
-			conn.Close()
-			wg.Done()
-		}
+		go connSetup(input, string(port), &message)
 
 	}
 
 	// Wait untill wg is 0
 	wg.Wait()
+
+	defer os.Exit(0)
+}
+
+func connSetup(input utils.Input, port string, message *[][]string) {
+	conn := listen(input, port)
+
+	if auto {
+		hostRSA(input, conn)
+	}
+
+	utils.VPrint("Setup finished\n")
+	go host(input, conn, port, message)
+
+	return
+
 }
 
 // Set up connection to specific port
@@ -108,25 +109,25 @@ func host(input utils.Input, conn net.Conn, port string, message *[][]string) {
 
 			if err != nil {
 				if err.Error() == "EOF" {
-					log.Fatalf("Connection on port %v closed", port)
+					log.Printf("Connection on port %v closed", port)
 					wg.Done()
 					return
+				} else {
+					log.Fatalln("Error reading data:", err.Error())
 				}
-				log.Fatalln("Error reading data:", err.Error())
 
 			}
 			if len([]byte(input.Enc)) != 0 {
 				log.Print(crypt.DecryptAES(data, []byte(input.Enc)))
-				// log.Print(crypt.DecryptAES(data, input.Key))
 			} else {
 				log.Print(data)
 			}
 
-			// if len(input.Port) > 1 {
-			// 	for i := 0; i < len(input.Port)-1; i++ {
-			// 		*message = append(*message, []string{utils.FilterPort(conn.LocalAddr().String()), data})
-			// 	}
-			// }
+			if len(input.Port) > 1 {
+				for i := 0; i < len(input.Port)-1; i++ {
+					*message = append(*message, []string{utils.FilterPort(conn.LocalAddr().String()), data})
+				}
+			}
 		}
 
 	}()
@@ -143,14 +144,15 @@ func host(input utils.Input, conn net.Conn, port string, message *[][]string) {
 
 			text += inp
 
-			if len(text) > 16834 {
-				log.Println("Message cant be over 16834 characters long")
-			}
-
 			if len(input.Port) > 1 {
-				for i := 0; i < len(input.Port); i++ {
+
+				if len(input.Enc) != 0 {
+
+					*message = append(*message, []string{"0", crypt.EncryptAES(text, []byte(input.Enc))})
+				} else {
 					*message = append(*message, []string{"0", text})
 				}
+
 			} else {
 
 				if len([]byte(input.Enc)) != 0 {
@@ -168,12 +170,24 @@ func host(input utils.Input, conn net.Conn, port string, message *[][]string) {
 			for {
 				time.Sleep(time.Millisecond * time.Duration(input.TimeOut))
 				if len(*message) > 0 {
-					for index, element := range *message {
+
+					// for index, element := range *message {
+					// 	log.Println(index, len(*message))
+					// 	if element[0] != utils.FilterPort(conn.LocalAddr().String()) {
+					// 		conn.Write([]byte(element[1]))
+					// 		*message = utils.Remove(*message, index)
+					// 	}
+					// 	time.Sleep(time.Millisecond * 50)
+					// }
+
+					for _, element := range *message {
 						if element[0] != utils.FilterPort(conn.LocalAddr().String()) {
 							conn.Write([]byte(element[1]))
-							*message = utils.Remove(*message, index)
 						}
+						time.Sleep(time.Millisecond * 50)
 					}
+
+					*message = [][]string{}
 				}
 			}
 		}()
@@ -187,7 +201,11 @@ func hostRSA(input utils.Input, conn net.Conn) bool {
 	utils.VPrint("Waiting for RSA key from " + utils.FilterIp(conn.RemoteAddr().String()) + "\n")
 	buffer := make([]byte, 4096)
 	bytes, err := conn.Read(buffer)
-	utils.Err(err)
+	if err != nil {
+		log.Println("Connection unexpectedly closed.")
+		wg.Done()
+		return false
+	}
 	sentPublicKey := buffer[:bytes]
 
 	// Convert bytes back to public key
@@ -195,6 +213,7 @@ func hostRSA(input utils.Input, conn net.Conn) bool {
 
 	if err != nil {
 		log.Println("Received data not RSA publickey. Make sure other party has auto encryption enabled")
+		wg.Done()
 		return false
 	}
 

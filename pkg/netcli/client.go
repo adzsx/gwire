@@ -34,7 +34,7 @@ func ClientSetup(input utils.Input) {
 		input.Enc = clientRSA(input, conn)
 	}
 
-	utils.VPrint("Setup finished\n")
+	utils.VPrint("Setup finished")
 	client(input, conn)
 }
 
@@ -116,15 +116,17 @@ func clientRSA(input utils.Input, conn net.Conn) string {
 	conn.Write(byteKey)
 
 	// Wait for host to send password
-	utils.VPrint("Waiting for response...")
+	utils.VPrint("Waiting for response")
 	buffer := make([]byte, 512)
 	bytes, err := conn.Read(buffer)
-	utils.Err(err)
+	if err != nil {
+		log.Println("Connection unexpectedly closed. Aborting Setup")
+	}
 	data := buffer[:bytes]
 
 	passwd := crypt.DecryptRSA(rsaKeys, data)
 
-	utils.VPrint("Received Password\n")
+	utils.VPrint("Received Password")
 
 	return passwd
 }

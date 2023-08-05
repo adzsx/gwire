@@ -108,5 +108,9 @@ func Format(args []string) Input {
 		input.Action = "version"
 	}
 
+	if input.TimeOut < 100 {
+		input.TimeOut = 100
+	}
+
 	return input
 }
