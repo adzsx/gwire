@@ -17,6 +17,7 @@ import (
 var (
 	wg   sync.WaitGroup
 	auto bool
+	sent int
 )
 
 // Set up listener for each port on list
@@ -124,9 +125,7 @@ func host(input utils.Input, conn net.Conn, port string, message *[][]string) {
 			}
 
 			if len(input.Port) > 1 {
-				for i := 0; i < len(input.Port)-1; i++ {
-					*message = append(*message, []string{utils.FilterPort(conn.LocalAddr().String()), data})
-				}
+				*message = append(*message, []string{utils.FilterPort(conn.LocalAddr().String()), data})
 			}
 		}
 
@@ -153,6 +152,8 @@ func host(input utils.Input, conn net.Conn, port string, message *[][]string) {
 					*message = append(*message, []string{"0", text})
 				}
 
+				sent = -1
+
 			} else {
 
 				if len([]byte(input.Enc)) != 0 {
@@ -174,11 +175,15 @@ func host(input utils.Input, conn net.Conn, port string, message *[][]string) {
 					for _, element := range *message {
 						if element[0] != utils.FilterPort(conn.LocalAddr().String()) {
 							conn.Write([]byte(element[1]))
+							sent += 1
 						}
 						time.Sleep(time.Millisecond * 50)
 					}
+					if sent == len(input.Port)-1 {
+						*message = [][]string{}
+						sent = 0
+					}
 
-					*message = [][]string{}
 				}
 			}
 		}()
