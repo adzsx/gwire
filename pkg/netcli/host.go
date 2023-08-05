@@ -28,7 +28,7 @@ func HostSetup(input utils.Input) {
 		auto = true
 		var err error
 		utils.VPrint("Generating password\n")
-		input.Enc, err = crypt.GenPasswd(32)
+		input.Enc, err = crypt.GenPasswd()
 		utils.Err(err)
 	}
 	// Set up listener for every port in range
@@ -170,15 +170,6 @@ func host(input utils.Input, conn net.Conn, port string, message *[][]string) {
 			for {
 				time.Sleep(time.Millisecond * time.Duration(input.TimeOut))
 				if len(*message) > 0 {
-
-					// for index, element := range *message {
-					// 	log.Println(index, len(*message))
-					// 	if element[0] != utils.FilterPort(conn.LocalAddr().String()) {
-					// 		conn.Write([]byte(element[1]))
-					// 		*message = utils.Remove(*message, index)
-					// 	}
-					// 	time.Sleep(time.Millisecond * 50)
-					// }
 
 					for _, element := range *message {
 						if element[0] != utils.FilterPort(conn.LocalAddr().String()) {

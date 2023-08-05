@@ -31,18 +31,6 @@ func FilterPort(ip string) string {
 	return strings.Join(final, "")
 }
 
-func Remove(slice [][]string, index int) [][]string {
-	var final [][]string
-
-	for rn, element := range slice {
-		if rn != index {
-			final = append(final, element)
-		}
-	}
-
-	return final
-}
-
 func Err(err error) {
 	if err != nil {
 		log.Panic("Error: ", err)

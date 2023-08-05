@@ -5,10 +5,10 @@ import (
 	"math/big"
 )
 
-func GenPasswd(n int) (string, error) {
+func GenPasswd() (string, error) {
 	const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!$%&/()=?+*#-_.:,;"
-	ret := make([]byte, n)
-	for i := 0; i < n; i++ {
+	ret := make([]byte, 32)
+	for i := 0; i < 32; i++ {
 		num, err := rand.Int(rand.Reader, big.NewInt(int64(len(chars))))
 		if err != nil {
 			return "", err

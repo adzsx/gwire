@@ -9,8 +9,8 @@ import (
 	"github.com/adzsx/gwire/pkg/utils"
 )
 
-// Generate RSA keys (Private and Public) publicKey = privateKey.PublicKey
 func GenKeys() rsa.PrivateKey {
+	//Generate RSA public and private keys
 	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	utils.Err(err)
 
@@ -19,7 +19,7 @@ func GenKeys() rsa.PrivateKey {
 
 func EncryptRSA(publicKey rsa.PublicKey, message []byte) []byte {
 
-	// Encrypt message with public Key and hash function
+	// Use SHA and PublicKey to enrypt a []byte message
 	encryptedBytes, err := rsa.EncryptOAEP(sha256.New(), rand.Reader, &publicKey, message, nil)
 
 	if err != nil {
@@ -31,13 +31,11 @@ func EncryptRSA(publicKey rsa.PublicKey, message []byte) []byte {
 
 func DecryptRSA(privateKey rsa.PrivateKey, encrypted []byte) string {
 
-	// Decrypt RSA with private key encrypted bytes and hash function
+	// Use SHA and privatekey ro decrypt []byte message
 	decryptedBytes, err := privateKey.Decrypt(nil, encrypted, &rsa.OAEPOptions{Hash: crypto.SHA256})
 	if err != nil {
 		panic(err)
 	}
 
-	// We get back the original information in the form of bytes, which we
-	// the cast to a string and print
 	return string(decryptedBytes)
 }
