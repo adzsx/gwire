@@ -18,14 +18,14 @@ Flags:
 	-l, --listen			listen
 	-p, --port 	[port]		use port [port]
 	-h, --host 	[host]		Connect to [host]-(Ip)
-	-v, --verbose		Show some more info
+	-v, --verbose			Show some more info
 	-u, --username 	[username]	[username] is didsplayed for other users
 	-t, --time			enable timestamps
 	-s, --slowmode	[seconds]	Enable slowmode
 	-e, --encrypt	([password])	If [password] is given, use AES, if not, encrypt automatic with RSA
 	`
 
-	version = "gwire v2.0.0"
+	version = "gwire v1.2.0"
 )
 
 func main() {
