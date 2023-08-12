@@ -2,8 +2,6 @@
   <img src="https://github.com/adzsx/gwire/blob/main/img/gwire-banner.png">
 </p>
 
-is an instant messaging service with optional manual and automatic encryption
-
 ## Features
 - p2p chat system
 - multi-user chat
