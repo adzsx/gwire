@@ -1,9 +1,8 @@
-<p align="center">
-  <img src="https://github.com/adzsx/gwire/blob/main/img/gwire-banner.png">
-</p>
+# gwire
+An encrypted p2p chat system
 
 ## Features
-- p2p chat system
+- p2p chat, No 3rd party
 - multi-user chat
 - low on cpu and memory
 - Encryption with AES
@@ -18,13 +17,13 @@ Other than that, there is no installation required
 
 ### Flags2
 ```
-    -l, --listen			        listen
-    -p, --port 	    [port]	        use port [port]
-    -h, --host 	    [host]	        Connect to [host]-(Ip)
-    -v, --verbose		            Show some more info
-    -u, --username 	[username]	    is didsplayed for other users
-    -t, --time			            enable timestamps
-    -s, --slowmode	[seconds]	    Enable slowmode, minimum is 0.1s
+    -l, --listen	                listen
+    -p, --port 	        [port]	        use port [port]
+    -h, --host 	        [host]	        Connect to [host]-(Ip)
+    -v, --verbose		        Show some more info
+    -u, --username 	[username]	is didsplayed for other users
+    -t, --time			        enable timestamps
+    -s, --slowmode	[seconds]	Enable slowmode, minimum is 0.1s
     -e, --encrypt	([password])    If [password] is given, use AES, if not, encrypt automatic with RSA
 ```
 ### Examples
