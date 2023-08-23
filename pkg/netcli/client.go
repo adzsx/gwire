@@ -35,8 +35,6 @@ func ClientSetup(input utils.Input) {
 
 		utils.Err(err)
 		input.Ip, conn = ScanRange(hosts, input.Port[0])
-
-		log.Println(input.Ip)
 	}
 
 	if err != nil && strings.Contains(err.Error(), "connect: connection refused") {
@@ -44,7 +42,7 @@ func ClientSetup(input utils.Input) {
 		os.Exit(0)
 	}
 
-	log.Println("Connected to", input.Ip+":"+input.Port[0]+"\n")
+	log.Printf("Connected to %v", input.Ip+":"+input.Port[0]+"\n")
 
 	if input.Enc == "auto" {
 		input.Enc = clientRSA(input, conn)

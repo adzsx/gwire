@@ -17,6 +17,7 @@ var (
 	sconn   net.Conn
 	counter int
 	found   bool
+	accept  bool
 )
 
 func ScanRange(ips []string, port string) (string, net.Conn) {
@@ -35,16 +36,14 @@ func ScanRange(ips []string, port string) (string, net.Conn) {
 		}
 	}
 
-	if len(connChan) == 0 {
+	if len(connChan) == 0 && !accept {
 		log.Println("No host was found")
 		os.Exit(0)
 	}
 
 	sconn = <-connChan
 
-	ip := sconn.RemoteAddr().String()
-
-	log.Println("Done scanning\nFound: " + sconn.RemoteAddr().String())
+	ip := utils.FilterChar(sconn.RemoteAddr().String(), ":", true)
 
 	return ip, sconn
 }
@@ -105,13 +104,11 @@ func scan(address string, connChan chan net.Conn) {
 
 				}
 			}
-
-			log.Println("Accepted")
+			accept = true
 
 			counter = 0
 
 			connChan <- conn
-			log.Println("Done")
 		}
 
 		time.Sleep(time.Second)
