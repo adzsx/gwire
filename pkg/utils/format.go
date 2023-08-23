@@ -30,16 +30,17 @@ func Format(args []string) Input {
 
 	for index, element := range args[0:] {
 		switch element[1:] {
+		case "nfo":
+			input.Action = "info"
+			return input
 		case "l", "-listen":
 			input.Action = "listen"
 
 		case "h", "-host":
-			if len(args) < index+2 {
-				log.Fatalln("Error: Host not defined")
-			} else if net.ParseIP(args[index+1]) == nil {
-				log.Fatalln("Error: Host addres invalid")
-			} else {
+			if len(args) > index+2 && net.ParseIP(args[index+1]) != nil {
 				input.Ip = args[index+1]
+			} else {
+				input.Ip = "scan"
 			}
 
 		case "p", "-port":

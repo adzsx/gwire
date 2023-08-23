@@ -13,6 +13,11 @@ import (
 	"github.com/adzsx/gwire/pkg/utils"
 )
 
+var (
+	conn net.Conn
+	err  error
+)
+
 // Function connects to host with TCP
 func ClientSetup(input utils.Input) {
 	log.SetFlags(0)
@@ -21,7 +26,18 @@ func ClientSetup(input utils.Input) {
 	}
 
 	// Connect to host
-	var conn, err = net.Dial("tcp", input.Ip+":"+input.Port[0])
+
+	if input.Ip != "scan" {
+		conn, err = net.Dial("tcp", input.Ip+":"+input.Port[0])
+	} else {
+		// Scan every host in network for open port
+		hosts, err := GetHosts(Subnet())
+
+		utils.Err(err)
+		input.Ip, conn = ScanRange(hosts, input.Port[0])
+
+		log.Println(input.Ip)
+	}
 
 	if err != nil && strings.Contains(err.Error(), "connect: connection refused") {
 		log.Fatalln("Connection refused by destination")

@@ -51,14 +51,27 @@ func HostSetup(input utils.Input) {
 func connSetup(input utils.Input, port string, message *[][]string) {
 	conn := listen(input, port)
 
+	/* 	for {
+		buffer := make([]byte, 16384)
+
+		bytes, err := conn.Read(buffer)
+		utils.Err(err)
+
+		data := string(buffer[:bytes])
+
+		if data != "Hello world" {
+			log.Println("Expected \"Hello world\" got " + data)
+		} else {
+			break
+		}
+	} */
+
 	if auto {
 		hostRSA(input, conn)
 	}
 
 	utils.VPrint("Setup finished\n")
 	go host(input, conn, port, message)
-
-	return
 
 }
 
