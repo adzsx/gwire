@@ -3,6 +3,7 @@ package utils
 import (
 	"log"
 	"net"
+	"os"
 	"strconv"
 	"strings"
 )
@@ -23,6 +24,11 @@ type Input struct {
 }
 
 func Format(args []string) Input {
+
+	if len(args) < 3 {
+		log.Println("Enter --help for help")
+		os.Exit(0)
+	}
 
 	input := Input{}
 	input.Enc = "auto"
