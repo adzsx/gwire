@@ -17,25 +17,26 @@ Other than that, there is no installation required
 
 ### Flags2
 ```
-    -l, --listen	                listen
-    -p, --port 	        [port]	        use port [port]
-    -h, --host 	        [host]	        Connect to [host]-(Ip)
-    -v, --verbose		        Show some more info
-    -u, --username 	[username]	is didsplayed for other users
-    -t, --time			        enable timestamps
-    -s, --slowmode	[seconds]	Enable slowmode, minimum is 0.1s
-    -e, --encrypt	([password])    If [password] is given, use AES, if not, encrypt automatic with RSA
-```
+	-l, --listen				        listen
+	-p, --port 		    [port]		    use port [port]
+	-h, --host 		    [host]		    Connect to [host]-(Ip)
+	-v, --verbose		[level]		    Show some more info levels: 1-3
+	-u, --username 		[username]	    set a username
+	-t, --time				            enable timestamps
+	-s, --slowmode		[seconds]	    Enable slowmode
+	-e, --encrypt		[password]	    use AES instead of RSA
+	-d, --no-encryption			        Do not use encryption (Not recommended)
+``` 
 ### Examples
 `gwire -l -p 1234` listen on port 1234
 <br>
-`gwire -h 192.168.0.1 -p 1234` connect to 192.168.0.1 on port 1234
+`gwire -h 192.168.0.1 -p 1234` connect to 192.168.0.1 on port 1234 (encrypted)
 <br><br>
 `gwire -l -p 1234 -v -t -s 2 -u adzsx` listen on port 1234, use verbose mode, show timestamps, enable slowmode to 2 seconds and use adzsx as the username
 <br><br>
 `gwire -l -p 1234 -e Chk16QFV8xIj1tEyJhSjszkC5ERiAPwJ` Listen on port 1234, use manual encryption with AES and a specified password
 <br><br>
-`gwire -p 1234 -h 192.168.0.1 -e` Connect to 192.168.0.1 on port 1234, use automatic encryption
+`gwire -p 1234 -h 192.168.0.1 -d` Connect to 192.168.0.1 on port 1234, do not use encryption
 
 
 ## Contributing
