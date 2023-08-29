@@ -23,7 +23,7 @@ func CheckInput(input Input) error {
 		missing = append(missing, "action")
 	}
 
-	if input.Ip == "" {
+	if input.Ip == "" && input.Action != "listen" {
 		missing = append(missing, "host")
 	}
 

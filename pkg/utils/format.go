@@ -26,6 +26,7 @@ func Format(args []string) Input {
 
 	input := Input{}
 	input.Enc = "auto"
+	input.TimeOut = 1000
 
 	for index, element := range args[0:] {
 		switch element[1:] {
@@ -78,7 +79,7 @@ func Format(args []string) Input {
 			time = true
 
 		case "s", "-slowmode":
-			if InSlice(args, "-l") || InSlice(args, "--listen") {
+			if InSlice(args, "-l") {
 				if len(args) < index+2 {
 					log.Fatalln("Error: Slowmode value not defined")
 				}
@@ -90,8 +91,6 @@ func Format(args []string) Input {
 				}
 
 				input.TimeOut = num * 1000
-			} else {
-				log.Println("You don't have permission to change the timeout value")
 			}
 
 		case "v", "-verbose":
@@ -102,10 +101,14 @@ func Format(args []string) Input {
 				verbose, err = strconv.Atoi(args[index+1])
 				Err(err, false)
 
+				if verbose < 3 {
+					verbose = 3
+				}
+
 			}
 
 		case "-debug":
-			verbose = 5
+			verbose = 3
 		}
 	}
 

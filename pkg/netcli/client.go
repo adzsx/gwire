@@ -7,7 +7,6 @@ import (
 	"log"
 	"net"
 	"os"
-	"strconv"
 	"strings"
 	"time"
 
@@ -58,18 +57,20 @@ func ClientSetup(input utils.Input) {
 // Function for ongoing connection
 func client(input utils.Input, conn net.Conn) {
 	// Receive Data
+
+	utils.Print("Started client routine", 3)
+
+	// Receive Data
+	var received []string
 	go func() {
 		for {
-
-			time.Sleep(time.Millisecond * time.Duration(input.TimeOut))
-
 			//Read data
 			//Make buffer for read data
 			buffer := make([]byte, 16384)
 			//Write length of message to bytes, message to buffer
 			bytes, err := conn.Read(buffer)
 			// Iterate for length over message
-			data := string(buffer[:bytes])
+			received = append(received, string(buffer[:bytes]))
 
 			if err != nil {
 				if err.Error() == "EOF" {
@@ -80,13 +81,25 @@ func client(input utils.Input, conn net.Conn) {
 
 			}
 
-			if len([]byte(input.Enc)) != 0 {
-				log.Print(crypt.DecryptAES(data, []byte(input.Enc)))
-			} else {
-				log.Print(data)
-			}
-
 		}
+	}()
+
+	// Function for printing received data
+	go func() {
+		for {
+			time.Sleep(time.Millisecond * time.Duration(input.TimeOut))
+
+			if len(received) != 0 {
+				if len([]byte(input.Enc)) != 0 {
+					log.Print(crypt.DecryptAES(received[0], []byte(input.Enc)))
+				} else {
+					log.Print(received[0])
+				}
+
+				received = utils.Remove(received, received[0])
+			}
+		}
+
 	}()
 
 	// Send data
@@ -97,7 +110,6 @@ func client(input utils.Input, conn net.Conn) {
 		}
 
 		for {
-			time.Sleep(time.Millisecond * time.Duration(input.TimeOut))
 			reader := bufio.NewReader(os.Stdin)
 
 			// attach username
@@ -165,11 +177,6 @@ func initClient(input utils.Input, conn net.Conn) (utils.Input, error) {
 		log.Println("Wrong password. Aborting connection")
 		return input, errors.New("wrong password")
 	}
-
-	timeout, err := strconv.Atoi(string(data))
-	utils.Err(err, true)
-
-	input.TimeOut = float64(timeout)
 
 	return input, nil
 }

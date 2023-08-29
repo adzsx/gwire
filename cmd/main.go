@@ -23,7 +23,7 @@ Flags:
 	-l, --listen				listen
 	-p, --port 		[port]		use port [port]
 	-h, --host 		[host]		Connect to [host]-(Ip)
-	-v, --verbose		[level]		Show some more info levels: 1-5
+	-v, --verbose		[level]		Show some more info levels: 1-3
 	-u, --username 		[username]	[username] is didsplayed for other users
 	-t, --time				enable timestamps
 	-s, --slowmode		[seconds]	Enable slowmode
@@ -41,13 +41,13 @@ func main() {
 
 	input := utils.Format(args)
 
-	err := utils.CheckInput(input)
-	utils.Err(err, true)
-
 	if input.Action == "version" {
 		log.Println(version)
 		os.Exit(0)
 	}
+
+	err := utils.CheckInput(input)
+	utils.Err(err, true)
 
 	if len(args) < 3 && input.Action != "help" && input.Action != "info" {
 		log.Println("Enter --help for help")

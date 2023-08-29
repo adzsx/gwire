@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"crypto/x509"
 	"errors"
-	"fmt"
 	"log"
 	"net"
 	"os"
@@ -55,7 +54,11 @@ func connSetup(input utils.Input, port string, message *[][]string) {
 
 	if auto {
 		err := InitConn(input, conn)
-		utils.Err(err, true)
+		if err != nil {
+			log.Println(err)
+			wg.Done()
+			return
+		}
 	}
 
 	utils.Print("Setup finished\n", 1)
@@ -96,48 +99,59 @@ func listen(input utils.Input, port string) net.Conn {
 // Listener loop for individual port
 func host(input utils.Input, conn net.Conn, port string, message *[][]string) {
 
+	utils.Print("Started host routine", 3)
+
 	// Read data
+	var receivedHost []string
 	go func() {
+		utils.Print("Started reading routine on", 3)
 		for {
-			var status bool
+			//Make buffer for read data
+			buffer := make([]byte, 16384)
+			//Write length of message to bytes, message to buffer
+			bytes, err := conn.Read(buffer)
+			// Iterate for length over message
+			data := string(buffer[:bytes])
+			receivedHost = append(receivedHost, data)
 
-			if status {
-				//Read data
-				//Make buffer for read data
-				buffer := make([]byte, 16384)
-				//Write length of message to bytes, message to buffer
-				bytes, err := conn.Read(buffer)
-				// Iterate for length over message
-				data := string(buffer[:bytes])
-
-				if err != nil {
-					if err.Error() == "EOF" {
-						log.Printf("Connection on port %v closed", port)
-						wg.Done()
-						return
-					} else {
-						log.Fatalln("Error reading data:", err.Error())
-					}
-
-				}
-				if len([]byte(input.Enc)) != 0 {
-					log.Print(crypt.DecryptAES(data, []byte(input.Enc)))
+			if err != nil {
+				if err.Error() == "EOF" {
+					log.Printf("Connection on port %v closed", port)
+					wg.Done()
+					return
 				} else {
-					log.Print(data)
+					log.Fatalln("Error reading data:", err.Error())
 				}
 
-				if len(input.Port) > 1 {
-					*message = append(*message, []string{utils.FilterPort(conn.LocalAddr().String()), data})
-				}
+			}
+
+			if len(input.Port) > 1 {
+				*message = append(*message, []string{utils.FilterPort(conn.LocalAddr().String()), data})
 			}
 		}
 
 	}()
 
-	// Send data from input
+	// Function for printing messages
 	go func() {
 		for {
 			time.Sleep(time.Millisecond * time.Duration(input.TimeOut))
+
+			if len(receivedHost) != 0 {
+				if len([]byte(input.Enc)) != 0 {
+					log.Print(crypt.DecryptAES(receivedHost[0], []byte(input.Enc)))
+				} else {
+					log.Print(receivedHost[0])
+				}
+
+				receivedHost = utils.Remove(receivedHost, receivedHost[0])
+			}
+		}
+	}()
+
+	// Send data from input
+	go func() {
+		for {
 			reader := bufio.NewReader(os.Stdin)
 
 			// attach username
@@ -172,7 +186,6 @@ func host(input utils.Input, conn net.Conn, port string, message *[][]string) {
 	if len(input.Port) > 1 {
 		go func() {
 			for {
-				time.Sleep(time.Millisecond * time.Duration(input.TimeOut))
 				if len(*message) > 0 {
 
 					for _, element := range *message {
@@ -233,7 +246,7 @@ func InitConn(input utils.Input, conn net.Conn) error {
 		return errors.New("wrong password")
 	}
 
-	conn.Write([]byte(crypt.EncryptAES(fmt.Sprint(input.TimeOut), []byte(input.Enc))))
+	conn.Write([]byte(crypt.EncryptAES("success", []byte(input.Enc))))
 
 	return nil
 }
