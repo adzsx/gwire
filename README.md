@@ -15,7 +15,7 @@ Other than that, there is no installation required
 
 ## Usage
 
-### Flags2
+### Flags
 ```
 	-l, --listen				        listen
 	-p, --port 		    [port]		    use port [port]
