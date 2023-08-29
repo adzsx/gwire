@@ -15,12 +15,12 @@ func EncryptAES(text string, key []byte) string {
 
 	// Create new cipher block
 	block, err := aes.NewCipher(key)
-	utils.Err(err)
+	utils.Err(err, true)
 
 	// Generate IV
 	iv := make([]byte, aes.BlockSize)
 	_, err = io.ReadFull(rand.Reader, iv)
-	utils.Err(err)
+	utils.Err(err, true)
 
 	// Encrypt
 	ciphertext := make([]byte, aes.BlockSize+len(plaintext))
@@ -38,11 +38,11 @@ func EncryptAES(text string, key []byte) string {
 func DecryptAES(ciphertext string, key []byte) string {
 	// Decode base64
 	decodedCiphertext, err := base64.StdEncoding.DecodeString(ciphertext)
-	utils.Err(err)
+	utils.Err(err, true)
 
 	// Create new cipher block
 	block, err := aes.NewCipher(key)
-	utils.Err(err)
+	utils.Err(err, true)
 
 	// Extract the IV from the decoded ciphertext
 	iv := decodedCiphertext[:aes.BlockSize]

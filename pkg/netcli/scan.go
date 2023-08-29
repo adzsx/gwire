@@ -119,7 +119,7 @@ func scan(address string, connChan chan net.Conn) {
 
 func Ping(ip string) bool {
 
-	cmd := exec.Command("ping", "-i", "0.1", "-c", "3", "-w", "1", ip)
+	cmd := exec.Command("ping", "-i", "0.2", "-c", "3", "-w", "1", ip)
 	out, _ := cmd.Output()
 
 	output, _ := strconv.Atoi(utils.FilterChar(utils.FilterChar(string(out), ",", false), ",", true)[1:2])

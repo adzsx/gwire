@@ -12,7 +12,7 @@ import (
 func GenKeys() rsa.PrivateKey {
 	//Generate RSA public and private keys
 	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
-	utils.Err(err)
+	utils.Err(err, true)
 
 	return *privateKey
 }

@@ -19,15 +19,16 @@ Modes:
 
 
 Flags:
-	    --help			help message
-	-l, --listen			listen
-	-p, --port 	[port]		use port [port]
-	-h, --host 	[host]		Connect to [host]-(Ip)
-	-v, --verbose			Show some more info
-	-u, --username 	[username]	[username] is didsplayed for other users
-	-t, --time			enable timestamps
-	-s, --slowmode	[seconds]	Enable slowmode
-	-e, --encrypt	([password])	If [password] is given, use AES, if not, encrypt automatic with RSA
+	    --help				help message
+	-l, --listen				listen
+	-p, --port 		[port]		use port [port]
+	-h, --host 		[host]		Connect to [host]-(Ip)
+	-v, --verbose		[level]		Show some more info levels: 1-5
+	-u, --username 		[username]	[username] is didsplayed for other users
+	-t, --time				enable timestamps
+	-s, --slowmode		[seconds]	Enable slowmode
+	-e, --encrypt		[password]	use AES instead of RSA
+	-d, --no-encryption			Do not use encryption (Not recommended)
 	`
 
 	version = "gwire v1.3.0"
@@ -39,6 +40,9 @@ func main() {
 	args := os.Args
 
 	input := utils.Format(args)
+
+	err := utils.CheckInput(input)
+	utils.Err(err, true)
 
 	if input.Action == "version" {
 		log.Println(version)

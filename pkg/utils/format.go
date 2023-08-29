@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	verbose bool
+	verbose int
 	time    bool
 )
 
@@ -25,8 +25,7 @@ type Input struct {
 func Format(args []string) Input {
 
 	input := Input{}
-
-	input.Time = false
+	input.Enc = "auto"
 
 	for index, element := range args[0:] {
 		switch element[1:] {
@@ -67,6 +66,9 @@ func Format(args []string) Input {
 			} else if len(args[index+1]) == 32 {
 				input.Enc = args[index+1]
 			}
+		case "-d", "-no-encryption":
+			input.Enc = ""
+			Print("No encryption", 2)
 
 		case "u", "-username":
 			input.Username = args[index+1]
@@ -76,20 +78,34 @@ func Format(args []string) Input {
 			time = true
 
 		case "s", "-slowmode":
-			if len(args) < index+2 {
-				log.Fatalln("Error: Slowmode value not defined")
+			if InSlice(args, "-l") || InSlice(args, "--listen") {
+				if len(args) < index+2 {
+					log.Fatalln("Error: Slowmode value not defined")
+				}
+
+				num, err := strconv.ParseFloat(args[index+1], 64)
+
+				if err != nil {
+					log.Fatalln("Error: Slowmode value invalid")
+				}
+
+				input.TimeOut = num * 1000
+			} else {
+				log.Println("You don't have permission to change the timeout value")
 			}
-
-			num, err := strconv.ParseFloat(args[index+1], 64)
-
-			if err != nil {
-				log.Fatalln("Error: Slowmode value invalid")
-			}
-
-			input.TimeOut = num * 1000
 
 		case "v", "-verbose":
-			verbose = true
+			if len(args) < index+2 || args[index+1][:1] == "-" {
+				verbose = 1
+			} else {
+				var err error
+				verbose, err = strconv.Atoi(args[index+1])
+				Err(err, false)
+
+			}
+
+		case "-debug":
+			verbose = 5
 		}
 	}
 

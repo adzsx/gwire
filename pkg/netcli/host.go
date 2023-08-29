@@ -3,6 +3,8 @@ package netcli
 import (
 	"bufio"
 	"crypto/x509"
+	"errors"
+	"fmt"
 	"log"
 	"net"
 	"os"
@@ -28,9 +30,9 @@ func HostSetup(input utils.Input) {
 	if input.Enc == "auto" {
 		auto = true
 		var err error
-		utils.VPrint("Generating password\n")
+		utils.Print("Generating password\n", 2)
 		input.Enc, err = crypt.GenPasswd()
-		utils.Err(err)
+		utils.Err(err, true)
 	}
 	// Set up listener for every port in range
 	for _, port := range input.Port {
@@ -51,26 +53,12 @@ func HostSetup(input utils.Input) {
 func connSetup(input utils.Input, port string, message *[][]string) {
 	conn := listen(input, port)
 
-	/* 	for {
-		buffer := make([]byte, 16384)
-
-		bytes, err := conn.Read(buffer)
-		utils.Err(err)
-
-		data := string(buffer[:bytes])
-
-		if data != "Hello world" {
-			log.Println("Expected \"Hello world\" got " + data)
-		} else {
-			break
-		}
-	} */
-
 	if auto {
-		hostRSA(input, conn)
+		err := InitConn(input, conn)
+		utils.Err(err, true)
 	}
 
-	utils.VPrint("Setup finished\n")
+	utils.Print("Setup finished\n", 1)
 	go host(input, conn, port, message)
 
 }
@@ -91,7 +79,7 @@ func listen(input utils.Input, port string) net.Conn {
 		os.Exit(0)
 	}
 
-	utils.VPrint("Listening on port " + port)
+	utils.Print("Listening on port "+port, 1)
 
 	conn, err := ln.Accept()
 	if err != nil {
@@ -111,34 +99,36 @@ func host(input utils.Input, conn net.Conn, port string, message *[][]string) {
 	// Read data
 	go func() {
 		for {
-			time.Sleep(time.Millisecond * time.Duration(input.TimeOut))
+			var status bool
 
-			//Read data
-			//Make buffer for read data
-			buffer := make([]byte, 16384)
-			//Write length of message to bytes, message to buffer
-			bytes, err := conn.Read(buffer)
-			// Iterate for length over message
-			data := string(buffer[:bytes])
+			if status {
+				//Read data
+				//Make buffer for read data
+				buffer := make([]byte, 16384)
+				//Write length of message to bytes, message to buffer
+				bytes, err := conn.Read(buffer)
+				// Iterate for length over message
+				data := string(buffer[:bytes])
 
-			if err != nil {
-				if err.Error() == "EOF" {
-					log.Printf("Connection on port %v closed", port)
-					wg.Done()
-					return
+				if err != nil {
+					if err.Error() == "EOF" {
+						log.Printf("Connection on port %v closed", port)
+						wg.Done()
+						return
+					} else {
+						log.Fatalln("Error reading data:", err.Error())
+					}
+
+				}
+				if len([]byte(input.Enc)) != 0 {
+					log.Print(crypt.DecryptAES(data, []byte(input.Enc)))
 				} else {
-					log.Fatalln("Error reading data:", err.Error())
+					log.Print(data)
 				}
 
-			}
-			if len([]byte(input.Enc)) != 0 {
-				log.Print(crypt.DecryptAES(data, []byte(input.Enc)))
-			} else {
-				log.Print(data)
-			}
-
-			if len(input.Port) > 1 {
-				*message = append(*message, []string{utils.FilterPort(conn.LocalAddr().String()), data})
+				if len(input.Port) > 1 {
+					*message = append(*message, []string{utils.FilterPort(conn.LocalAddr().String()), data})
+				}
 			}
 		}
 
@@ -203,17 +193,14 @@ func host(input utils.Input, conn net.Conn, port string, message *[][]string) {
 	}
 }
 
-func hostRSA(input utils.Input, conn net.Conn) bool {
-
+func InitConn(input utils.Input, conn net.Conn) error {
 	// Make buffer for receiving RSA public key
-
-	utils.VPrint("Waiting for RSA key from " + utils.FilterIp(conn.RemoteAddr().String()) + "\n")
+	utils.Print("Waiting for RSA key from "+utils.FilterIp(conn.RemoteAddr().String())+"\n", 1)
 	buffer := make([]byte, 4096)
 	bytes, err := conn.Read(buffer)
 	if err != nil {
-		log.Println("Connection unexpectedly closed.")
 		wg.Done()
-		return false
+		return errors.New("connection closed")
 	}
 	sentPublicKey := buffer[:bytes]
 
@@ -221,16 +208,32 @@ func hostRSA(input utils.Input, conn net.Conn) bool {
 	publicKey, err := x509.ParsePKCS1PublicKey(sentPublicKey)
 
 	if err != nil {
-		log.Println("Received data not RSA publickey. Make sure other party has auto encryption enabled")
 		wg.Done()
-		return false
+		return errors.New("received data not RSA publickey")
 	}
 
-	utils.VPrint("Publickey received from " + utils.FilterIp(conn.RemoteAddr().String()) + "\n")
+	utils.Print("Publickey received from "+utils.FilterIp(conn.RemoteAddr().String())+"\n", 1)
 
 	// Send encrypted AES key over connection
+	utils.Print("Sending Password", 2)
 	encKey := crypt.EncryptRSA(*publicKey, []byte(input.Enc))
 	conn.Write(encKey)
 
-	return true
+	utils.Print("Waiting for password confirmation", 2)
+
+	buffer = make([]byte, 512)
+	bytes, err = conn.Read(buffer)
+	utils.Err(err, true)
+	data := string(buffer[:bytes])
+
+	utils.Print("Received password confirmation", 2)
+
+	if crypt.DecryptAES(data, []byte(input.Enc)) != input.Enc {
+		conn.Write([]byte("wrong password"))
+		return errors.New("wrong password")
+	}
+
+	conn.Write([]byte(crypt.EncryptAES(fmt.Sprint(input.TimeOut), []byte(input.Enc))))
+
+	return nil
 }

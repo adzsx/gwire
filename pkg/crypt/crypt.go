@@ -3,6 +3,8 @@ package crypt
 import (
 	"crypto/rand"
 	"math/big"
+
+	"github.com/adzsx/gwire/pkg/utils"
 )
 
 func GenPasswd() (string, error) {
@@ -10,9 +12,7 @@ func GenPasswd() (string, error) {
 	ret := make([]byte, 32)
 	for i := 0; i < 32; i++ {
 		num, err := rand.Int(rand.Reader, big.NewInt(int64(len(chars))))
-		if err != nil {
-			return "", err
-		}
+		utils.Err(err, true)
 		ret[i] = chars[num.Int64()]
 	}
 

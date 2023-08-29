@@ -2,6 +2,7 @@ package utils
 
 import (
 	"log"
+	"os"
 	"strings"
 )
 
@@ -31,9 +32,12 @@ func FilterPort(ip string) string {
 	return strings.Join(final, "")
 }
 
-func Err(err error) {
+func Err(err error, critical bool) {
 	if err != nil {
-		log.Panic("Error: ", err)
+		log.Println("Error: ", err)
+		if critical {
+			os.Exit(0)
+		}
 	}
 }
 
@@ -48,12 +52,12 @@ func InSlice(s []string, str string) bool {
 }
 
 // Verbose print
-func VPrint(v any) {
+func Print(v any, level int) {
 	if time {
 		log.SetFlags(log.Ltime)
 	}
 
-	if verbose {
+	if verbose >= level {
 		log.Print(v)
 	}
 }

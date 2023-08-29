@@ -21,7 +21,7 @@ func CalcAddr(cidr string) (string, string) {
 	mask := utils.FilterChar(cidr, "/", false)
 	maskN, err := strconv.Atoi(mask)
 
-	utils.Err(err)
+	utils.Err(err, true)
 
 	var subnetmask []string
 
@@ -78,7 +78,7 @@ func Info() (string, string, string, string) {
 	ip, mask := CalcAddr(Subnet())
 	list, err := GetHosts(Subnet())
 	if err != nil {
-		utils.Err(err)
+		utils.Err(err, true)
 	}
 	nHosts := strconv.Itoa(len(list))
 

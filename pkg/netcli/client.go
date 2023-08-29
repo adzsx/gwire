@@ -3,9 +3,11 @@ package netcli
 import (
 	"bufio"
 	"crypto/x509"
+	"errors"
 	"log"
 	"net"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -33,7 +35,7 @@ func ClientSetup(input utils.Input) {
 		// Scan every host in network for open port
 		hosts, err := GetHosts(Subnet())
 
-		utils.Err(err)
+		utils.Err(err, true)
 		input.Ip, conn = ScanRange(hosts, input.Port[0])
 	}
 
@@ -45,10 +47,11 @@ func ClientSetup(input utils.Input) {
 	log.Printf("Connected to %v", input.Ip+":"+input.Port[0]+"\n")
 
 	if input.Enc == "auto" {
-		input.Enc = clientRSA(input, conn)
+		input, err = initClient(input, conn)
+		utils.Err(err, true)
 	}
 
-	utils.VPrint("Setup finished")
+	utils.Print("Setup finished", 1)
 	client(input, conn)
 }
 
@@ -119,28 +122,54 @@ func client(input utils.Input, conn net.Conn) {
 }
 
 // Func for setting up RSA encryption for the clientcs
-func clientRSA(input utils.Input, conn net.Conn) string {
+func initClient(input utils.Input, conn net.Conn) (utils.Input, error) {
 
-	utils.VPrint("Generating RSA Keys")
+	utils.Print("Generating RSA Keys", 1)
 	var rsaKeys = crypt.GenKeys()
 
 	byteKey := x509.MarshalPKCS1PublicKey(&rsaKeys.PublicKey)
 
-	utils.VPrint("Sending Public Key")
+	utils.Print("Sending Public Key", 2)
 	conn.Write(byteKey)
 
 	// Wait for host to send password
-	utils.VPrint("Waiting for response")
+	utils.Print("Waiting for response", 2)
 	buffer := make([]byte, 512)
 	bytes, err := conn.Read(buffer)
 	if err != nil {
 		log.Println("Connection unexpectedly closed. Aborting Setup")
+		return input, errors.New("connection failed")
 	}
-	data := buffer[:bytes]
+	data := string(buffer[:bytes])
 
-	passwd := crypt.DecryptRSA(rsaKeys, data)
+	passwd := crypt.DecryptRSA(rsaKeys, []byte(data))
 
-	utils.VPrint("Received Password")
+	input.Enc = passwd
 
-	return passwd
+	utils.Print("Password received", 1)
+	utils.Print("Seinding Password confirmation package", 2)
+
+	conn.Write([]byte(crypt.EncryptAES(input.Enc, []byte(input.Enc))))
+
+	utils.Print("Waiting for Control package", 2)
+
+	buffer = make([]byte, 512)
+	bytes, err = conn.Read(buffer)
+	utils.Err(err, true)
+	data = string(buffer[:bytes])
+	data = crypt.DecryptAES(data, []byte(input.Enc))
+
+	utils.Print("Received Control Package", 2)
+
+	if string(data) == "wrong password" {
+		log.Println("Wrong password. Aborting connection")
+		return input, errors.New("wrong password")
+	}
+
+	timeout, err := strconv.Atoi(string(data))
+	utils.Err(err, true)
+
+	input.TimeOut = float64(timeout)
+
+	return input, nil
 }
