@@ -17,15 +17,15 @@ Other than that, there is no installation required
 
 ### Flags
 ```
-	-l, --listen				        listen
-	-p, --port 		    [port]		    use port [port]
-	-h, --host 		    [host]		    Connect to [host]-(Ip)
-	-v, --verbose		[level]		    Show some more info levels: 1-3
-	-u, --username 		[username]	    set a username
-	-t, --time				            enable timestamps
-	-s, --slowmode		[seconds]	    Enable slowmode
-	-e, --encrypt		[password]	    use AES instead of RSA
-	-d, --no-encryption			        Do not use encryption (Not recommended)
+	-l, --listen				listen
+	-p, --port 		[port]		use port [port]
+	-h, --host 		[host]		Connect to [host]-(Ip)
+	-v, --verbose		[level]		Show some more info levels: 1-3
+	-u, --username 		[username]	set a username
+	-t, --time			        enable timestamps
+	-s, --slowmode		[seconds]	Enable slowmode
+	-e, --encrypt		[password]	use AES instead of RSA
+	-d, --no-encryption			Do not use encryption (Not recommended)
 ``` 
 ### Examples
 `gwire -l -p 1234` listen on port 1234
