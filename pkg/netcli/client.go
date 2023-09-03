@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"crypto/x509"
 	"errors"
+	"fmt"
 	"log"
 	"net"
 	"os"
@@ -43,7 +44,7 @@ func ClientSetup(input utils.Input) {
 		os.Exit(0)
 	}
 
-	log.Printf("Connected to %v", input.Ip+":"+input.Port[0]+"\n")
+	utils.Print("Connected to "+input.Ip+":"+input.Port[0]+"\n", 0)
 
 	if input.Enc == "auto" {
 		input, err = initClient(input, conn)
@@ -60,8 +61,13 @@ func client(input utils.Input, conn net.Conn) {
 
 	utils.Print("Started client routine", 3)
 
+	// Starting ui
+	fmt.Print("\033[S")
+	fmt.Print("\033G")
+
 	// Receive Data
 	var received []string
+
 	go func() {
 		for {
 			//Read data
@@ -74,7 +80,7 @@ func client(input utils.Input, conn net.Conn) {
 
 			if err != nil {
 				if err.Error() == "EOF" {
-					log.Fatalln("Connection closed by remote host")
+					utils.Print("Connection closed by remote host", 0)
 					os.Exit(0)
 				}
 				log.Fatalln("Error reading data:", err.Error())
@@ -86,37 +92,66 @@ func client(input utils.Input, conn net.Conn) {
 
 	// Function for printing received data
 	go func() {
+		var data string
+
 		for {
 			time.Sleep(time.Millisecond * time.Duration(input.TimeOut))
 
 			if len(received) != 0 {
+
+				fmt.Print("\x1b[s")
+				fmt.Print("\033[1A\033[999D\033[K")
+				fmt.Print("\033[96m")
+
 				if len([]byte(input.Enc)) != 0 {
-					log.Print(crypt.DecryptAES(received[0], []byte(input.Enc)))
+					data = crypt.DecryptAES(received[0], []byte(input.Enc)) + "\n"
 				} else {
-					log.Print(received[0])
+					data = received[0] + "\n"
 				}
 
+				color := utils.GetRandomString(colorList, utils.FilterChar(data, ">", true))
+				fmt.Print(color)
+				fmt.Print(data)
+				fmt.Print("\033[0m")
+
+				fmt.Print("\033[0m\x1b[u")
+
 				received = utils.Remove(received, received[0])
+
 			}
+
 		}
 
 	}()
 
 	// Send data
 	func() {
+		reader := bufio.NewReader(os.Stdin)
+
 		log.SetFlags(0)
 		if input.Time {
 			log.SetFlags(log.Ltime)
 		}
 
 		for {
-			reader := bufio.NewReader(os.Stdin)
 
-			// attach username
 			text := input.Username + "> "
-			inp, _ := reader.ReadString('\n')
 
+			inp, _ := reader.ReadString('\n')
 			text += inp
+
+			// Move up one line, Clear it. Again. Print in blue
+			fmt.Print("\033[F")
+			fmt.Print("\033[0K")
+			fmt.Print("\033[F")
+			fmt.Print("\033[0K")
+			fmt.Print("\033[37m")
+
+			fmt.Println(text)
+
+			// Move back down, print in white
+			fmt.Print("\033[2B")
+			fmt.Print("\033[0m")
 
 			if len(text) > 16384 {
 				log.Println("Message cant be over 16384 characters long")
@@ -128,6 +163,7 @@ func client(input utils.Input, conn net.Conn) {
 			} else {
 				conn.Write([]byte(text))
 			}
+
 		}
 	}()
 

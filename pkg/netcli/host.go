@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"crypto/x509"
 	"errors"
+	"fmt"
 	"log"
 	"net"
 	"os"
@@ -16,9 +17,10 @@ import (
 )
 
 var (
-	wg   sync.WaitGroup
-	auto bool
-	sent int
+	auto      bool
+	wg        sync.WaitGroup
+	sent      int
+	colorList []string = []string{"\033[91m", "\033[92m", "\033[93m", "\033[94m", "\033[95m", "\033[96m"}
 )
 
 // Set up listener for each port on list
@@ -50,6 +52,7 @@ func HostSetup(input utils.Input) {
 }
 
 func connSetup(input utils.Input, port string, message *[][]string) {
+
 	conn := listen(input, port)
 
 	if auto {
@@ -62,12 +65,14 @@ func connSetup(input utils.Input, port string, message *[][]string) {
 	}
 
 	utils.Print("Setup finished\n", 1)
+
 	go host(input, conn, port, message)
 
 }
 
 // Set up connection to specific port
 func listen(input utils.Input, port string) net.Conn {
+
 	log.SetFlags(0)
 	if input.Time {
 		log.SetFlags(log.Ltime)
@@ -91,7 +96,7 @@ func listen(input utils.Input, port string) net.Conn {
 		return conn
 	}
 
-	log.Printf("Connected to %v", conn.RemoteAddr())
+	utils.Print("Connected to "+conn.RemoteAddr().String(), 0)
 
 	return conn
 }
@@ -101,10 +106,11 @@ func host(input utils.Input, conn net.Conn, port string, message *[][]string) {
 
 	utils.Print("Started host routine", 3)
 
+	fmt.Println()
+
 	// Read data
 	var receivedHost []string
 	go func() {
-		utils.Print("Started reading routine on", 3)
 		for {
 			//Make buffer for read data
 			buffer := make([]byte, 16384)
@@ -134,15 +140,25 @@ func host(input utils.Input, conn net.Conn, port string, message *[][]string) {
 
 	// Function for printing messages
 	go func() {
+		var data string
 		for {
 			time.Sleep(time.Millisecond * time.Duration(input.TimeOut))
 
 			if len(receivedHost) != 0 {
+				fmt.Print("\x1b[s")
+				fmt.Print("\033[1A\033[999D\033[K")
 				if len([]byte(input.Enc)) != 0 {
-					log.Print(crypt.DecryptAES(receivedHost[0], []byte(input.Enc)))
+					data = crypt.DecryptAES(receivedHost[0], []byte(input.Enc)) + "\n"
 				} else {
-					log.Print(receivedHost[0])
+					data = receivedHost[0] + "\n"
 				}
+
+				color := utils.GetRandomString(colorList, utils.FilterChar(data, ">", true))
+				fmt.Print(color)
+				fmt.Print(data)
+				fmt.Print("\033[0m")
+
+				fmt.Print("\033[0m\x1b[u")
 
 				receivedHost = utils.Remove(receivedHost, receivedHost[0])
 			}
@@ -151,14 +167,31 @@ func host(input utils.Input, conn net.Conn, port string, message *[][]string) {
 
 	// Send data from input
 	go func() {
+		reader := bufio.NewReader(os.Stdin)
+		log.SetFlags(0)
+		if input.Time {
+			log.SetFlags(log.Ltime)
+		}
+
 		for {
-			reader := bufio.NewReader(os.Stdin)
 
 			// attach username
 			text := input.Username + "> "
 			inp, _ := reader.ReadString('\n')
 
 			text += inp
+
+			fmt.Print("\033[F")
+			fmt.Print("\033[0K")
+			fmt.Print("\033[F")
+			fmt.Print("\033[0K")
+			fmt.Print("\033[37m")
+
+			fmt.Println(text)
+
+			// Move back down, print in white
+			fmt.Print("\033[2B")
+			fmt.Print("\033[37m")
 
 			if len(input.Port) > 1 {
 

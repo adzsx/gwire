@@ -25,7 +25,7 @@ type Input struct {
 
 func Format(args []string) Input {
 
-	if len(args) < 3 {
+	if len(args) < 2 {
 		log.Println("Enter --help for help")
 		os.Exit(0)
 	}
@@ -73,7 +73,7 @@ func Format(args []string) Input {
 			} else if len(args[index+1]) == 32 {
 				input.Enc = args[index+1]
 			}
-		case "-d", "-no-encryption":
+		case "d", "-no-encryption":
 			input.Enc = ""
 			Print("No encryption", 2)
 
@@ -137,6 +137,5 @@ func Format(args []string) Input {
 	if input.TimeOut < 100 {
 		input.TimeOut = 100
 	}
-
 	return input
 }

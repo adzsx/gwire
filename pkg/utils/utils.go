@@ -1,7 +1,9 @@
 package utils
 
 import (
+	"fmt"
 	"log"
+	"math/rand"
 	"os"
 	"strings"
 )
@@ -33,12 +35,14 @@ func FilterPort(ip string) string {
 }
 
 func Err(err error, critical bool) {
+	fmt.Print("\033[31m")
 	if err != nil {
 		log.Println("Error: ", err)
 		if critical {
 			os.Exit(0)
 		}
 	}
+	fmt.Print("\033[0m")
 }
 
 func InSlice(s []string, str string) bool {
@@ -53,6 +57,8 @@ func InSlice(s []string, str string) bool {
 
 // Verbose print
 func Print(v any, level int) {
+
+	fmt.Print("\033[33m")
 	if time {
 		log.SetFlags(log.Ltime)
 	}
@@ -60,6 +66,8 @@ func Print(v any, level int) {
 	if verbose >= level {
 		log.Print(v)
 	}
+
+	fmt.Print("\033[0m")
 }
 
 func Remove(list []string, str string) []string {
@@ -97,4 +105,31 @@ func FilterChar(str string, char string, before bool) string {
 
 func Nothing() {
 
+}
+
+func aton(letter rune) int {
+	uppercaseLetter := strings.ToUpper(string(letter))
+	if len(uppercaseLetter) != 1 || uppercaseLetter < "A" || uppercaseLetter > "Z" {
+		return 0 // Return 0 for non-letter characters or invalid input
+	}
+
+	num := int(uppercaseLetter[0] - 'A' + 1)
+	return num
+}
+
+func GetRandomString(strings []string, username string) string {
+	if len(strings) == 0 {
+		return "" // Return an empty string if the input slice is empty
+	}
+
+	var seed int64
+
+	for _, char := range username {
+		seed += int64(aton(char))
+	}
+
+	rand.Seed(seed)
+
+	randomIndex := rand.Intn(len(strings))
+	return strings[randomIndex]
 }
