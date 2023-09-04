@@ -37,7 +37,7 @@ func FilterPort(ip string) string {
 func Err(err error, critical bool) {
 	fmt.Print("\033[31m")
 	if err != nil {
-		log.Println("Error: ", err)
+		log.Println("Error:", err)
 		if critical {
 			os.Exit(0)
 		}
@@ -59,12 +59,11 @@ func InSlice(s []string, str string) bool {
 func Print(v any, level int) {
 
 	fmt.Print("\033[33m")
-	if time {
-		log.SetFlags(log.Ltime)
-	}
+
+	log.SetFlags(log.Ltime)
 
 	if verbose >= level {
-		log.Print(v)
+		log.Print("System: ", v)
 	}
 
 	fmt.Print("\033[0m")

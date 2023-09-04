@@ -40,8 +40,7 @@ func ClientSetup(input utils.Input) {
 	}
 
 	if err != nil && strings.Contains(err.Error(), "connect: connection refused") {
-		log.Fatalln("Connection refused by destination")
-		os.Exit(0)
+		utils.Err(errors.New("connection refused by destination"), true)
 	}
 
 	utils.Print("Connected to "+input.Ip+":"+input.Port[0]+"\n", 0)
@@ -134,6 +133,7 @@ func client(input utils.Input, conn net.Conn) {
 		}
 
 		for {
+			time.Sleep(time.Millisecond * 100)
 
 			text := input.Username + "> "
 

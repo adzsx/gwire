@@ -37,7 +37,7 @@ func CheckInput(input Input) error {
 	}
 
 	if len(missing) == 1 {
-		return errors.New("missing value for: " + strings.Join(missing, ", "))
+		return errors.New("missing value for: " + missing[0])
 	} else if len(missing) > 1 {
 		return errors.New("missing values for: " + strings.Join(missing, ", "))
 	}

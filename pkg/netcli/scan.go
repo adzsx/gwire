@@ -2,6 +2,7 @@ package netcli
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"log"
 	"net"
@@ -37,7 +38,7 @@ func ScanRange(ips []string, port string) (string, net.Conn) {
 	}
 
 	if len(connChan) == 0 && !accept {
-		log.Println("No host was found")
+		utils.Err(errors.New("no host found"), true)
 		os.Exit(0)
 	}
 

@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"log"
 	"net"
 	"os"
@@ -10,7 +11,6 @@ import (
 
 var (
 	verbose int
-	time    bool
 )
 
 type Input struct {
@@ -43,7 +43,7 @@ func Format(args []string) Input {
 			input.Action = "listen"
 
 		case "h", "-host":
-			if len(args) > index+2 && net.ParseIP(args[index+1]) != nil {
+			if len(args) > index+1 && net.ParseIP(args[index+1]) != nil {
 				input.Ip = args[index+1]
 			} else {
 				input.Ip = "scan"
@@ -51,9 +51,9 @@ func Format(args []string) Input {
 
 		case "p", "-port":
 			if len(args) < index+2 {
-				log.Fatalln("Error: Port not defined")
+				Err(errors.New("port not defined"), true)
 			} else if _, err := strconv.Atoi(args[index+1]); err != nil {
-				log.Fatalln("Error: Port number invalid")
+				Err(errors.New("post value invalid"), true)
 			} else {
 
 				if InSlice(args, "-l") {
@@ -69,7 +69,7 @@ func Format(args []string) Input {
 			if len(args) < index+2 || args[index+1][0:1] == "-" {
 				input.Enc = "auto"
 			} else if len(args[index+1]) != 32 {
-				log.Fatalln("Error: Password has to be 32 characters, not ", len(args[index+1]))
+				Err(errors.New("password has to be 32 characters"), true)
 			} else if len(args[index+1]) == 32 {
 				input.Enc = args[index+1]
 			}
@@ -82,18 +82,17 @@ func Format(args []string) Input {
 
 		case "t", "-time":
 			input.Time = true
-			time = true
 
 		case "s", "-slowmode":
 			if InSlice(args, "-l") {
 				if len(args) < index+2 {
-					log.Fatalln("Error: Slowmode value not defined")
+					Err(errors.New("slowmode value not defined"), true)
 				}
 
 				num, err := strconv.ParseFloat(args[index+1], 64)
 
 				if err != nil {
-					log.Fatalln("Error: Slowmode value invalid")
+					Err(errors.New("slowmode value invalid"), true)
 				}
 
 				input.TimeOut = num * 1000

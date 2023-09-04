@@ -20,7 +20,7 @@ var (
 	auto      bool
 	wg        sync.WaitGroup
 	sent      int
-	colorList []string = []string{"\033[91m", "\033[92m", "\033[93m", "\033[94m", "\033[95m", "\033[96m"}
+	colorList []string = []string{"\033[92m", "\033[93m", "\033[94m", "\033[95m", "\033[96m"}
 )
 
 // Set up listener for each port on list
@@ -219,6 +219,7 @@ func host(input utils.Input, conn net.Conn, port string, message *[][]string) {
 	if len(input.Port) > 1 {
 		go func() {
 			for {
+				time.Sleep(time.Millisecond * 100)
 				if len(*message) > 0 {
 
 					for _, element := range *message {
