@@ -20,7 +20,7 @@ var (
 	auto      bool
 	wg        sync.WaitGroup
 	sent      int
-	colorList []string = []string{"\033[92m", "\033[93m", "\033[94m", "\033[95m", "\033[96m"}
+	colorList []string = []string{"\033[92m", "\033[94m", "\033[95m", "\033[96m"}
 )
 
 // Set up listener for each port on list

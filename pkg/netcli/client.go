@@ -113,7 +113,7 @@ func client(input utils.Input, conn net.Conn) {
 				fmt.Print(data)
 				fmt.Print("\033[0m")
 
-				fmt.Print("\033[0m\x1b[u")
+				fmt.Print("\033[0m\x1b[u\033[1B")
 
 				received = utils.Remove(received, received[0])
 
