@@ -59,7 +59,6 @@ func connSetup(input utils.Input, port string, message *[][]string) {
 		err := InitConn(input, conn)
 		if err != nil {
 			log.Println(err)
-			wg.Done()
 			return
 		}
 	}
