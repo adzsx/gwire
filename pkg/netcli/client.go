@@ -111,9 +111,8 @@ func client(input utils.Input, conn net.Conn) {
 				color := utils.GetRandomString(colorList, utils.FilterChar(data, ">", true))
 				fmt.Print(color)
 				fmt.Print(data)
-				fmt.Print("\033[0m")
 
-				fmt.Print("\033[0m\x1b[u\033[1B")
+				fmt.Print("\033[0m\x1b[u\033[2A")
 
 				received = utils.Remove(received, received[0])
 

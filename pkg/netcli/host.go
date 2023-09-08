@@ -131,7 +131,7 @@ func host(input utils.Input, conn net.Conn, port string, message *[][]string) {
 			}
 
 			if len(input.Port) > 1 {
-				*message = append(*message, []string{utils.FilterPort(conn.LocalAddr().String()), data})
+				*message = append(*message, []string{utils.FilterChar(conn.LocalAddr().String(), ":", false), data})
 			}
 		}
 
@@ -155,9 +155,8 @@ func host(input utils.Input, conn net.Conn, port string, message *[][]string) {
 				color := utils.GetRandomString(colorList, utils.FilterChar(data, ">", true))
 				fmt.Print(color)
 				fmt.Print(data)
-				fmt.Print("\033[0m")
 
-				fmt.Print("\033[0m\x1b[u")
+				fmt.Print("\033[0m\x1b[u\033[B")
 
 				receivedHost = utils.Remove(receivedHost, receivedHost[0])
 			}
@@ -222,7 +221,7 @@ func host(input utils.Input, conn net.Conn, port string, message *[][]string) {
 				if len(*message) > 0 {
 
 					for _, element := range *message {
-						if element[0] != utils.FilterPort(conn.LocalAddr().String()) {
+						if element[0] != utils.FilterChar(conn.LocalAddr().String(), ":", false) {
 							conn.Write([]byte(element[1]))
 							sent += 1
 						}
@@ -241,7 +240,7 @@ func host(input utils.Input, conn net.Conn, port string, message *[][]string) {
 
 func InitConn(input utils.Input, conn net.Conn) error {
 	// Make buffer for receiving RSA public key
-	utils.Print("Waiting for RSA key from "+utils.FilterIp(conn.RemoteAddr().String())+"\n", 1)
+	utils.Print("Waiting for RSA key from "+utils.FilterChar(conn.RemoteAddr().String(), ":", true)+"\n", 1)
 	buffer := make([]byte, 4096)
 	bytes, err := conn.Read(buffer)
 	if err != nil {
@@ -258,7 +257,7 @@ func InitConn(input utils.Input, conn net.Conn) error {
 		return errors.New("received data not RSA publickey")
 	}
 
-	utils.Print("Publickey received from "+utils.FilterIp(conn.RemoteAddr().String())+"\n", 1)
+	utils.Print("Publickey received from "+utils.FilterChar(conn.RemoteAddr().String(), ":", true)+"\n", 1)
 
 	// Send encrypted AES key over connection
 	utils.Print("Sending Password", 2)

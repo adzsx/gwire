@@ -31,7 +31,7 @@ Flags:
 	-d, --no-encryption			Do not use encryption (Not recommended)
 	`
 
-	version = "gwire v1.3.1"
+	version = "gwire v1.3.2"
 )
 
 func main() {

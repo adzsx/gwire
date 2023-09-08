@@ -6,33 +6,8 @@ import (
 	"math/rand"
 	"os"
 	"strings"
+  "runtime"
 )
-
-func FilterIp(ip string) string {
-	var final string
-
-	for _, element := range ip {
-		if string(element) != ":" {
-			final += string(element)
-		} else {
-			return final
-		}
-	}
-
-	return final
-}
-
-func FilterPort(ip string) string {
-	var final []string
-
-	for index, element := range ip {
-		if string(element) == ":" {
-			final = append(final, ip[index+1:])
-		}
-	}
-
-	return strings.Join(final, "")
-}
 
 func Err(err error, critical bool) {
 	fmt.Print("\033[31m")
@@ -67,6 +42,20 @@ func Print(v any, level int) {
 	}
 
 	fmt.Print("\033[0m")
+}
+
+func getOS() string {
+  return runtime.GOOS
+}
+
+func ESC() string {
+  os := getOS()
+
+  if os != "windows"{
+    return "\033"
+  } else {
+    return "ESC"
+  }
 }
 
 func Remove(list []string, str string) []string {
