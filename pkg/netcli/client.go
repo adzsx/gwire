@@ -98,9 +98,7 @@ func client(input utils.Input, conn net.Conn) {
 
 			if len(received) != 0 {
 
-				utils.Ansi("\x1b[s")
-				utils.Ansi("\033[1A\033[999D\033[K")
-				utils.Ansi("\033[96m")
+				utils.Ansi("\x1b[s\033[1A\033[999D\033[K")
 
 				if len([]byte(input.Enc)) != 0 {
 					data = crypt.DecryptAES(received[0], []byte(input.Enc)) + "\n"
@@ -109,10 +107,10 @@ func client(input utils.Input, conn net.Conn) {
 				}
 
 				color := utils.GetRandomString(colorList, utils.FilterChar(data, ">", true))
-				fmt.Print(color)
+				utils.Ansi(color)
 				fmt.Print(data)
 
-				utils.Ansi("\033[0m\x1b[u\033[2A")
+				utils.Ansi("\033[0m\x1b[u\033[B")
 
 				received = utils.Remove(received, received[0])
 
@@ -145,7 +143,7 @@ func client(input utils.Input, conn net.Conn) {
 			fmt.Println(text)
 
 			// Move back down, print in white
-			utils.Ansi("\033[2B\033[0m")
+			utils.Ansi("\033[1B\033[0m")
 
 			if len(text) > 16384 {
 				log.Println("Message cant be over 16384 characters long")

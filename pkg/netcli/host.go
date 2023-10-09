@@ -153,7 +153,7 @@ func host(input utils.Input, conn net.Conn, port string, message *[][]string) {
 				}
 
 				color := utils.GetRandomString(colorList, utils.FilterChar(data, ">", true))
-				fmt.Print(color)
+				utils.Ansi(color)
 				fmt.Print(data)
 
 				utils.Ansi("\033[0m\x1b[u\033[B")
