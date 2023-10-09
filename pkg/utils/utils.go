@@ -5,19 +5,19 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"runtime"
 	"strings"
-  "runtime"
 )
 
 func Err(err error, critical bool) {
-	fmt.Print("\033[31m")
+	Ansi("\033[31m")
 	if err != nil {
 		log.Println("Error:", err)
 		if critical {
 			os.Exit(0)
 		}
 	}
-	fmt.Print("\033[0m")
+	Ansi("\033[0m")
 }
 
 func InSlice(s []string, str string) bool {
@@ -33,7 +33,7 @@ func InSlice(s []string, str string) bool {
 // Verbose print
 func Print(v any, level int) {
 
-	fmt.Print("\033[33m")
+	Ansi("\033[33m")
 
 	log.SetFlags(log.Ltime)
 
@@ -41,21 +41,19 @@ func Print(v any, level int) {
 		log.Print("System: ", v)
 	}
 
-	fmt.Print("\033[0m")
+	Ansi("\033[0m")
 }
 
 func getOS() string {
-  return runtime.GOOS
+	return runtime.GOOS
 }
 
-func ESC() string {
-  os := getOS()
+func Ansi(inp string) {
+	os := getOS()
 
-  if os != "windows"{
-    return "\033"
-  } else {
-    return "ESC"
-  }
+	if os != "windows" {
+		fmt.Print(inp)
+	}
 }
 
 func Remove(list []string, str string) []string {

@@ -23,7 +23,7 @@ func CheckInput(input Input) error {
 		missing = append(missing, "action")
 	}
 
-	if input.Action == "info" {
+	if input.Action == "info" || input.Action == "help" {
 		return nil
 
 	}

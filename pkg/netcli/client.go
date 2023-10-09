@@ -61,8 +61,8 @@ func client(input utils.Input, conn net.Conn) {
 	utils.Print("Started client routine", 3)
 
 	// Starting ui
-	fmt.Print("\033[S")
-	fmt.Print("\033G")
+	utils.Ansi("\033[S")
+	utils.Ansi("\033G")
 
 	// Receive Data
 	var received []string
@@ -98,9 +98,9 @@ func client(input utils.Input, conn net.Conn) {
 
 			if len(received) != 0 {
 
-				fmt.Print("\x1b[s")
-				fmt.Print("\033[1A\033[999D\033[K")
-				fmt.Print("\033[96m")
+				utils.Ansi("\x1b[s")
+				utils.Ansi("\033[1A\033[999D\033[K")
+				utils.Ansi("\033[96m")
 
 				if len([]byte(input.Enc)) != 0 {
 					data = crypt.DecryptAES(received[0], []byte(input.Enc)) + "\n"
@@ -112,7 +112,7 @@ func client(input utils.Input, conn net.Conn) {
 				fmt.Print(color)
 				fmt.Print(data)
 
-				fmt.Print("\033[0m\x1b[u\033[2A")
+				utils.Ansi("\033[0m\x1b[u\033[2A")
 
 				received = utils.Remove(received, received[0])
 
@@ -140,17 +140,12 @@ func client(input utils.Input, conn net.Conn) {
 			text += inp
 
 			// Move up one line, Clear it. Again. Print in blue
-			fmt.Print("\033[F")
-			fmt.Print("\033[0K")
-			fmt.Print("\033[F")
-			fmt.Print("\033[0K")
-			fmt.Print("\033[37m")
+			utils.Ansi("\033[F\033[0K\033[F\033[0K\033[37m")
 
 			fmt.Println(text)
 
 			// Move back down, print in white
-			fmt.Print("\033[2B")
-			fmt.Print("\033[0m")
+			utils.Ansi("\033[2B\033[0m")
 
 			if len(text) > 16384 {
 				log.Println("Message cant be over 16384 characters long")

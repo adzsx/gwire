@@ -144,8 +144,8 @@ func host(input utils.Input, conn net.Conn, port string, message *[][]string) {
 			time.Sleep(time.Millisecond * time.Duration(input.TimeOut))
 
 			if len(receivedHost) != 0 {
-				fmt.Print("\x1b[s")
-				fmt.Print("\033[1A\033[999D\033[K")
+				utils.Ansi("\x1b[s\033[1A\033[999D\033[K")
+
 				if len([]byte(input.Enc)) != 0 {
 					data = crypt.DecryptAES(receivedHost[0], []byte(input.Enc)) + "\n"
 				} else {
@@ -156,7 +156,7 @@ func host(input utils.Input, conn net.Conn, port string, message *[][]string) {
 				fmt.Print(color)
 				fmt.Print(data)
 
-				fmt.Print("\033[0m\x1b[u\033[B")
+				utils.Ansi("\033[0m\x1b[u\033[B")
 
 				receivedHost = utils.Remove(receivedHost, receivedHost[0])
 			}
@@ -179,17 +179,12 @@ func host(input utils.Input, conn net.Conn, port string, message *[][]string) {
 
 			text += inp
 
-			fmt.Print("\033[F")
-			fmt.Print("\033[0K")
-			fmt.Print("\033[F")
-			fmt.Print("\033[0K")
-			fmt.Print("\033[37m")
+			utils.Ansi("\033[F\033[0K\033[F\033[0K\033[37m")
 
 			fmt.Println(text)
 
 			// Move back down, print in white
-			fmt.Print("\033[2B")
-			fmt.Print("\033[37m")
+			utils.Ansi("\033[2B\033[37m")
 
 			if len(input.Port) > 1 {
 
