@@ -21,7 +21,7 @@ var (
 )
 
 // Function connects to host with TCP
-func ClientSetup(input utils.Input) {
+func ClientSetup(input utils.Input, graphics bool) {
 	log.SetFlags(0)
 	if input.Time {
 		log.SetFlags(log.Ltime)

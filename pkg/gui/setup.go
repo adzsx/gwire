@@ -1,7 +1,6 @@
 package gui
 
 import (
-	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -15,19 +14,16 @@ import (
 )
 
 var (
-	a       fyne.App
 	listen  *widget.Check
 	encrypt *widget.Check
+	GApp    fyne.App
+	input   utils.Input
 )
 
-func Setup() utils.Input {
+func setup(version string) {
+	w := GApp.NewWindow("Gwire Setup")
 
-	var input utils.Input
-
-	a = app.New()
-	setup := a.NewWindow("Gwire Setup")
-
-	title := widget.NewLabel("GWire Setup")
+	title := widget.NewLabel(version)
 
 	userEntry := widget.NewEntry()
 	userEntry.SetPlaceHolder("Username")
@@ -49,6 +45,7 @@ func Setup() utils.Input {
 		if b {
 			listen.SetChecked(false)
 			ipEntry.Disable()
+			ipWarning.Hide()
 			portEntry.Enable()
 			input.Ip = "scan"
 		} else {
@@ -60,6 +57,7 @@ func Setup() utils.Input {
 		listen.Refresh()
 		if b {
 			scan.SetChecked(false)
+			ipWarning.Hide()
 			ipEntry.Disable()
 			input.Action = "listen"
 			portEntry.SetPlaceHolder("Port(s) seperated by space")
@@ -69,7 +67,7 @@ func Setup() utils.Input {
 		}
 	})
 
-	password := widget.NewEntry()
+	password := widget.NewPasswordEntry()
 	password.SetPlaceHolder("Password")
 
 	pwWarning := widget.NewLabel("")
@@ -99,7 +97,7 @@ func Setup() utils.Input {
 	autoEncrypt.SetChecked(true)
 
 	info := widget.NewButton("Info", func() {
-		infoWindow := a.NewWindow("Gwire Info")
+		infoWindow := GApp.NewWindow("Gwire Info")
 
 		ip, mask, nHosts := netcli.Info()
 		ipL := widget.NewLabel("Private IP:")
@@ -181,9 +179,13 @@ func Setup() utils.Input {
 
 		input.TimeOut = 100
 
+		if input.Action == "" {
+			input.Action = "connect"
+		}
+
 		if clear {
-			fmt.Println(input)
-			setup.Close()
+			chatW.Show()
+			w.Close()
 		}
 	})
 
@@ -208,12 +210,20 @@ func Setup() utils.Input {
 		password,
 		pwWarning,
 
-		container.NewGridWithColumns(2, info, start),
+		info,
+		start,
 	)
 
-	setup.SetContent(content)
-
-	setup.ShowAndRun()
-
-	return input
+	w.SetContent(content)
+	w.Show()
 }
+
+func GUI(version string) {
+	GApp = app.New()
+	GApp.Settings().SetTheme(myTheme{})
+	chat()
+	setup(version)
+	GApp.Run()
+}
+
+//Todo: Open 2 windows on startup (setup and chat) becasue this is fucking stupid

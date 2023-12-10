@@ -24,7 +24,7 @@ var (
 )
 
 // Set up listener for each port on list
-func HostSetup(input utils.Input) {
+func HostSetup(input utils.Input, graphics bool) {
 	// Global slice for distributing messages
 	var message = [][]string{}
 

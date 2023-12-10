@@ -35,42 +35,43 @@ Flags:
 	version = "gwire v1.4.0"
 
 	input utils.Input
+
+	graphics bool
 )
 
 func main() {
 	log.SetFlags(0)
 	args := os.Args
 
-	if len(args) < 2 {
-		input = gui.Setup()
+	if len(args) == 1 {
+		gui.GUI(version)
 	} else {
 		input = utils.Format(args)
-	}
 
-	if input.Action == "version" {
-		log.Println(version)
-		os.Exit(0)
-	}
+		if input.Action == "version" {
+			log.Println(version)
+			os.Exit(0)
+		}
 
-	err := utils.CheckInput(input)
-	utils.Err(err, true)
+		err := utils.CheckInput(input)
+		utils.Err(err, true)
 
-	if input.Action == "help" {
-		log.Print(help)
-		os.Exit(0)
-	}
+		if input.Action == "help" {
+			log.Print(help)
+			os.Exit(0)
+		}
 
-	if input.Action == "listen" {
-		netcli.HostSetup(input)
+		if input.Action == "listen" {
+			netcli.HostSetup(input, graphics)
 
-	} else if input.Action == "connect" {
+		} else if input.Action == "connect" {
+			netcli.ClientSetup(input, graphics)
+		} else if input.Action == "info" {
 
-		netcli.ClientSetup(input)
-	} else if input.Action == "info" {
+			ip, mask, nHosts := netcli.Info()
+			log.Printf("Private IP: 		%v\nSubnetmask: 		%v\nNumber of hosts: 	%v", ip, mask, nHosts)
 
-		ip, mask, nHosts := netcli.Info()
-		log.Printf("Private IP: 		%v\nSubnetmask: 		%v\nNumber of hosts: 	%v", ip, mask, nHosts)
-
+		}
 	}
 
 }
