@@ -33,16 +33,19 @@ Flags:
 	`
 
 	version = "gwire v1.4.0"
+
+	input utils.Input
 )
 
 func main() {
-
-	gui.Setup()
-
 	log.SetFlags(0)
 	args := os.Args
 
-	input := utils.Format(args)
+	if len(args) < 2 {
+		input = gui.Setup()
+	} else {
+		input = utils.Format(args)
+	}
 
 	if input.Action == "version" {
 		log.Println(version)
@@ -52,10 +55,7 @@ func main() {
 	err := utils.CheckInput(input)
 	utils.Err(err, true)
 
-	if len(args) < 3 && input.Action != "help" && input.Action != "info" {
-		log.Println("Enter --help for help")
-		os.Exit(0)
-	} else if input.Action == "help" {
+	if input.Action == "help" {
 		log.Print(help)
 		os.Exit(0)
 	}
@@ -68,7 +68,7 @@ func main() {
 		netcli.ClientSetup(input)
 	} else if input.Action == "info" {
 
-		ip, mask, nHosts, _ := netcli.Info()
+		ip, mask, nHosts := netcli.Info()
 		log.Printf("Private IP: 		%v\nSubnetmask: 		%v\nNumber of hosts: 	%v", ip, mask, nHosts)
 
 	}

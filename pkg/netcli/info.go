@@ -74,7 +74,7 @@ func incrementIP(ip net.IP) {
 	}
 }
 
-func Info() (string, string, string, string) {
+func Info() (string, string, string) {
 	ip, mask := CalcAddr(Subnet())
 	list, err := GetHosts(Subnet())
 	if err != nil {
@@ -82,5 +82,5 @@ func Info() (string, string, string, string) {
 	}
 	nHosts := strconv.Itoa(len(list))
 
-	return ip, mask, nHosts, ""
+	return ip, mask, nHosts
 }

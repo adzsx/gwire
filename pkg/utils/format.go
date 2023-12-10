@@ -53,7 +53,7 @@ func Format(args []string) Input {
 			if len(args) < index+2 {
 				Err(errors.New("port not defined"), true)
 			} else if _, err := strconv.Atoi(args[index+1]); err != nil {
-				Err(errors.New("post value invalid"), true)
+				Err(errors.New("invalid port"), true)
 			} else {
 
 				if InSlice(args, "-l") {
