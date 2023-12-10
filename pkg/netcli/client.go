@@ -98,7 +98,7 @@ func client(input utils.Input, conn net.Conn) {
 
 			if len(received) != 0 {
 
-				utils.Ansi("\x1b[s\033[1A\033[999D\033[K")
+				utils.Ansi("\x1b[s\033[A\033[999D\033[K")
 
 				if len([]byte(input.Enc)) != 0 {
 					data = crypt.DecryptAES(received[0], []byte(input.Enc)) + "\n"

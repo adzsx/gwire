@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/adzsx/gwire/pkg/gui"
 	"github.com/adzsx/gwire/pkg/netcli"
 	"github.com/adzsx/gwire/pkg/utils"
 )
@@ -31,10 +32,12 @@ Flags:
 	-d, --no-encryption			Do not use encryption (Not recommended)
 	`
 
-	version = "gwire v1.3.2"
+	version = "gwire v1.4.0"
 )
 
 func main() {
+
+	gui.Setup()
 
 	log.SetFlags(0)
 	args := os.Args

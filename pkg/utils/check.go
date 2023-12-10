@@ -2,6 +2,7 @@ package utils
 
 import (
 	"errors"
+	"net"
 	"strings"
 )
 
@@ -43,4 +44,8 @@ func CheckInput(input Input) error {
 	}
 
 	return nil
+}
+
+func IP(ip string) bool {
+	return net.ParseIP(ip) != nil
 }

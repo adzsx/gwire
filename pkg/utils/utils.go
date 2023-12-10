@@ -114,8 +114,6 @@ func GetRandomString(strings []string, username string) string {
 		seed += int64(aton(char))
 	}
 
-	rand.Seed(seed)
-
 	randomIndex := rand.Intn(len(strings))
 	return strings[randomIndex]
 }
