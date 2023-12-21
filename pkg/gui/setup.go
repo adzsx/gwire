@@ -9,7 +9,6 @@ import (
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
-	"github.com/adzsx/gwire/pkg/netcli"
 	"github.com/adzsx/gwire/pkg/utils"
 )
 
@@ -96,30 +95,6 @@ func setup(version string) {
 
 	autoEncrypt.SetChecked(true)
 
-	info := widget.NewButton("Info", func() {
-		infoWindow := GApp.NewWindow("Gwire Info")
-
-		ip, mask, nHosts := netcli.Info()
-		ipL := widget.NewLabel("Private IP:")
-		ipLabel := widget.NewLabel(ip)
-
-		maskL := widget.NewLabel("Subnetmask: ")
-		maskLabel := widget.NewLabel(mask)
-
-		hostL := widget.NewLabel("Possible Hosts: ")
-		hostLabel := widget.NewLabel(nHosts)
-
-		content := container.NewGridWithColumns(2,
-			ipL, ipLabel,
-			maskL, maskLabel,
-			hostL, hostLabel,
-		)
-
-		infoWindow.SetContent(content)
-
-		infoWindow.Show()
-	})
-
 	start := widget.NewButton("Go", func() {
 		clear := true
 		if encrypt.Checked {
@@ -185,6 +160,7 @@ func setup(version string) {
 
 		if clear {
 			chatW.Show()
+			AddMsg("This is the start of the conversation")
 			w.Close()
 		}
 	})
@@ -210,7 +186,6 @@ func setup(version string) {
 		password,
 		pwWarning,
 
-		info,
 		start,
 	)
 
@@ -221,9 +196,7 @@ func setup(version string) {
 func GUI(version string) {
 	GApp = app.New()
 	GApp.Settings().SetTheme(myTheme{})
-	chat()
+	chat(version)
 	setup(version)
 	GApp.Run()
 }
-
-//Todo: Open 2 windows on startup (setup and chat) becasue this is fucking stupid
