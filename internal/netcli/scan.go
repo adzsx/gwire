@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/adzsx/gwire/pkg/utils"
+	"github.com/adzsx/gwire/internal/utils"
 )
 
 var (

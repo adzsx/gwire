@@ -5,14 +5,14 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha256"
-
-	"github.com/adzsx/gwire/pkg/utils"
 )
 
 func GenKeys() rsa.PrivateKey {
 	//Generate RSA public and private keys
 	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
-	utils.Err(err, true)
+	if err != nil {
+		panic(err)
+	}
 
 	return *privateKey
 }

@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/adzsx/gwire/pkg/netcli"
-	"github.com/adzsx/gwire/pkg/utils"
+	"github.com/adzsx/gwire/internal/netcli"
+	"github.com/adzsx/gwire/internal/utils"
 )
 
 var (

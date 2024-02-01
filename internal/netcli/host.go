@@ -12,8 +12,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/adzsx/gwire/internal/utils"
 	"github.com/adzsx/gwire/pkg/crypt"
-	"github.com/adzsx/gwire/pkg/utils"
 )
 
 var (

@@ -6,8 +6,6 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"io"
-
-	"github.com/adzsx/gwire/pkg/utils"
 )
 
 func EncryptAES(text string, key []byte) string {
@@ -15,12 +13,16 @@ func EncryptAES(text string, key []byte) string {
 
 	// Create new cipher block
 	block, err := aes.NewCipher(key)
-	utils.Err(err, true)
+	if err != nil {
+		panic(err)
+	}
 
 	// Generate IV
 	iv := make([]byte, aes.BlockSize)
 	_, err = io.ReadFull(rand.Reader, iv)
-	utils.Err(err, true)
+	if err != nil {
+		panic(err)
+	}
 
 	// Encrypt
 	ciphertext := make([]byte, aes.BlockSize+len(plaintext))
@@ -38,11 +40,15 @@ func EncryptAES(text string, key []byte) string {
 func DecryptAES(ciphertext string, key []byte) string {
 	// Decode base64
 	decodedCiphertext, err := base64.StdEncoding.DecodeString(ciphertext)
-	utils.Err(err, true)
+	if err != nil {
+		panic(err)
+	}
 
 	// Create new cipher block
 	block, err := aes.NewCipher(key)
-	utils.Err(err, true)
+	if err != nil {
+		panic(err)
+	}
 
 	// Extract the IV from the decoded ciphertext
 	iv := decodedCiphertext[:aes.BlockSize]
