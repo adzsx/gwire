@@ -11,6 +11,7 @@ import (
 
 var (
 	verbose int
+	format  bool = true
 )
 
 type Input struct {
@@ -73,15 +74,6 @@ func Format(args []string) Input {
 			} else if len(args[index+1]) == 32 {
 				input.Enc = args[index+1]
 			}
-		case "d", "-no-encryption":
-			input.Enc = ""
-			Print("No encryption", 2)
-
-		case "u", "-username":
-			input.Username = args[index+1]
-
-		case "t", "-time":
-			input.Time = true
 
 		case "s", "-slowmode":
 			if InSlice(args, "-l") {
@@ -97,6 +89,19 @@ func Format(args []string) Input {
 
 				input.TimeOut = num * 1000
 			}
+
+		case "d", "-no-encryption":
+			input.Enc = ""
+			Print("No encryption", 2)
+
+		case "u", "-username":
+			input.Username = args[index+1]
+
+		case "t", "-time":
+			input.Time = true
+
+		case "f", "-format":
+			format = false
 
 		case "v", "-verbose":
 			if len(args) < index+2 || args[index+1][:1] == "-" {

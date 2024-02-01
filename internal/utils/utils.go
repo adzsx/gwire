@@ -44,14 +44,8 @@ func Print(v any, level int) {
 	Ansi("\033[0m")
 }
 
-func getOS() string {
-	return runtime.GOOS
-}
-
 func Ansi(inp string) {
-	os := getOS()
-
-	if os != "windows" {
+	if runtime.GOOS != "windows" && format {
 		fmt.Print(inp)
 	}
 }
@@ -114,7 +108,7 @@ func GetRandomString(strings []string, username string) string {
 		seed += int64(aton(char))
 	}
 
-	rand.Seed(seed)
+	rand.New(rand.NewSource(seed))
 
 	randomIndex := rand.Intn(len(strings))
 	return strings[randomIndex]
