@@ -9,7 +9,7 @@ import (
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
-	"github.com/adzsx/gwire/pkg/utils"
+	"github.com/adzsx/gwire/internal/utils"
 )
 
 var (
@@ -161,6 +161,7 @@ func setup(version string) {
 		if clear {
 			chatW.Show()
 			AddMsg("This is the start of the conversation")
+			connected()
 			w.Close()
 		}
 	})

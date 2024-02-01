@@ -2,6 +2,7 @@ package gui
 
 import (
 	"os"
+	"strings"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -11,6 +12,7 @@ import (
 var (
 	chatW    fyne.Window
 	messages *widget.List
+	con      *widget.Label
 	text     []string
 )
 
@@ -19,7 +21,14 @@ func chat(version string) {
 
 	chatW.Resize(fyne.NewSize(1066, 600))
 
-	host := widget.NewLabel(version)
+	if len(input.Port) > 1 {
+		con = widget.NewLabel(strings.Join(input.Port, ", "))
+	} else if input.Port != nil {
+		con = widget.NewLabel(input.Ip + ":" + input.Port[0])
+	} else {
+		con = widget.NewLabel("Not Connected")
+	}
+
 	quit := widget.NewButton("Quit", func() {
 		os.Exit(0)
 	})
@@ -42,11 +51,12 @@ func chat(version string) {
 	entry := widget.NewEntry()
 
 	send := widget.NewButton("Send", func() {
+		//SendMsg(entry.Text)
 		AddMsg(entry.Text)
 	})
 
 	content := container.NewBorder(
-		container.NewHBox(container.NewCenter(quit), container.NewCenter(host)),
+		container.NewHBox(container.NewCenter(quit), container.NewCenter(con)),
 
 		container.NewGridWithColumns(2, entry, container.NewHBox(send)),
 
@@ -56,6 +66,14 @@ func chat(version string) {
 		container.NewStack(messages),
 	)
 	chatW.SetContent(content)
+}
+
+func connected() {
+	if len(input.Port) > 1 {
+		con.SetText(strings.Join(input.Port, ", "))
+	} else if input.Port != nil {
+		con.SetText(input.Ip + ":" + input.Port[0])
+	}
 }
 
 func AddMsg(msg string) {
@@ -68,8 +86,4 @@ func AddMsg(msg string) {
 	if messages.Length() > 0 {
 		messages.ScrollToBottom()
 	}
-}
-
-func AddLog(msg string) {
-
 }

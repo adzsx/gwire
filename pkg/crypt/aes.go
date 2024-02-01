@@ -7,7 +7,7 @@ import (
 	"encoding/base64"
 	"io"
 
-	"github.com/adzsx/gwire/pkg/utils"
+	"github.com/adzsx/gwire/internal/utils"
 )
 
 func EncryptAES(text string, key []byte) string {

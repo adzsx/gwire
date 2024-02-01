@@ -4,7 +4,7 @@ import (
 	"crypto/rand"
 	"math/big"
 
-	"github.com/adzsx/gwire/pkg/utils"
+	"github.com/adzsx/gwire/internal/utils"
 )
 
 func GenPasswd() (string, error) {

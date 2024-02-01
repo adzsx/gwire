@@ -6,7 +6,7 @@ import (
 	"crypto/rsa"
 	"crypto/sha256"
 
-	"github.com/adzsx/gwire/pkg/utils"
+	"github.com/adzsx/gwire/internal/utils"
 )
 
 func GenKeys() rsa.PrivateKey {
