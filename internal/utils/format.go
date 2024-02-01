@@ -25,7 +25,7 @@ type Input struct {
 
 func Format(args []string) Input {
 
-	if len(args) < 2 {
+	if len(args) < 2 && !InSlice(args, "--help") {
 		log.Println("Enter --help for help")
 		os.Exit(0)
 	}
