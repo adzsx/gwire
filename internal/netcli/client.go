@@ -98,19 +98,21 @@ func client(input utils.Input, conn net.Conn) {
 
 			if len(received) != 0 {
 
-				utils.Ansi("\x1b[s\033[1A\033[999D\033[K")
+				utils.Ansi("\x1b[s\033[999B")
+				fmt.Println()
+				utils.Ansi("\033[2A\033[999D\033[K\033[L")
 
 				if len([]byte(input.Enc)) != 0 {
-					data = crypt.DecryptAES(received[0], []byte(input.Enc)) + "\n"
+					data = crypt.DecryptAES(received[0], []byte(input.Enc))
 				} else {
-					data = received[0] + "\n"
+					data = received[0]
 				}
 
 				color := utils.GetRandomString(colorList, utils.FilterChar(data, ">", true))
 				utils.Ansi(color)
 				fmt.Print(data)
 
-				utils.Ansi("\033[0m\x1b[u\033[B")
+				utils.Ansi("\x1b[u")
 
 				received = utils.Remove(received, received[0])
 
@@ -130,6 +132,8 @@ func client(input utils.Input, conn net.Conn) {
 		}
 
 		for {
+			utils.Ansi("\033[90B")
+			fmt.Print(":")
 			time.Sleep(time.Millisecond * 100)
 
 			text := input.Username + "> "
@@ -137,10 +141,9 @@ func client(input utils.Input, conn net.Conn) {
 			inp, _ := reader.ReadString('\n')
 			text += inp
 
-			// Move up one line, Clear it. Again. Print in blue
-			utils.Ansi("\033[F\033[0K\033[F\033[0K\033[37m")
+			utils.Ansi("\033[A\033[K\033[A\033[K")
 
-			fmt.Println(text)
+			fmt.Print(text, "\n")
 
 			// Move back down, print in white
 			utils.Ansi("\033[1B\033[0m")

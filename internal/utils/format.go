@@ -5,6 +5,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"runtime"
 	"strconv"
 	"strings"
 )
@@ -140,6 +141,10 @@ func Format(args []string) Input {
 
 	if input.TimeOut < 100 {
 		input.TimeOut = 100
+	}
+
+	if runtime.GOOS == "windows" {
+		format = false
 	}
 	return input
 }

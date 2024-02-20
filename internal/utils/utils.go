@@ -5,7 +5,6 @@ import (
 	"log"
 	"math/rand"
 	"os"
-	"runtime"
 	"strings"
 )
 
@@ -45,7 +44,7 @@ func Print(v any, level int) {
 }
 
 func Ansi(inp string) {
-	if runtime.GOOS != "windows" && format {
+	if format {
 		fmt.Print(inp)
 	}
 }
@@ -81,10 +80,6 @@ func FilterChar(str string, char string, before bool) string {
 	}
 
 	return final
-}
-
-func Nothing() {
-
 }
 
 func aton(letter rune) int {

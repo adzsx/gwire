@@ -144,7 +144,10 @@ func host(input utils.Input, conn net.Conn, port string, message *[][]string) {
 			time.Sleep(time.Millisecond * time.Duration(input.TimeOut))
 
 			if len(receivedHost) != 0 {
-				utils.Ansi("\x1b[s\033[1A\033[999D\033[K")
+
+				utils.Ansi("\x1b[s\033[999B")
+				fmt.Println()
+				utils.Ansi("\033[2A\033[999D\033[K\033[L")
 
 				if len([]byte(input.Enc)) != 0 {
 					data = crypt.DecryptAES(receivedHost[0], []byte(input.Enc)) + "\n"
@@ -156,7 +159,7 @@ func host(input utils.Input, conn net.Conn, port string, message *[][]string) {
 				utils.Ansi(color)
 				fmt.Print(data)
 
-				utils.Ansi("\033[0m\x1b[u\033[B")
+				utils.Ansi("\x1b[u")
 
 				receivedHost = utils.Remove(receivedHost, receivedHost[0])
 			}
@@ -165,6 +168,7 @@ func host(input utils.Input, conn net.Conn, port string, message *[][]string) {
 
 	// Send data from input
 	go func() {
+
 		reader := bufio.NewReader(os.Stdin)
 		log.SetFlags(0)
 		if input.Time {
@@ -172,6 +176,7 @@ func host(input utils.Input, conn net.Conn, port string, message *[][]string) {
 		}
 
 		for {
+			fmt.Print(":")
 
 			// attach username
 			text := input.Username + "> "
@@ -186,6 +191,10 @@ func host(input utils.Input, conn net.Conn, port string, message *[][]string) {
 			// Move back down, print in white
 			utils.Ansi("\033[2B\033[37m")
 
+			if text[len(text)-1:] == "\n" {
+				text = strings.Replace(text, "\n", "", 1)
+			}
+
 			if len(input.Port) > 1 {
 
 				if len(input.Enc) != 0 {
@@ -198,7 +207,6 @@ func host(input utils.Input, conn net.Conn, port string, message *[][]string) {
 				sent = -1
 
 			} else {
-
 				if len([]byte(input.Enc)) != 0 {
 					conn.Write([]byte(crypt.EncryptAES(text, []byte(input.Enc))))
 				} else {
