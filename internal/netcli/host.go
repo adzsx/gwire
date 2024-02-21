@@ -176,7 +176,7 @@ func host(input utils.Input, conn net.Conn, port string, message *[][]string) {
 		}
 
 		for {
-			fmt.Print(":")
+			fmt.Print(">")
 
 			// attach username
 			text := input.Username + "> "

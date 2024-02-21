@@ -132,8 +132,7 @@ func client(input utils.Input, conn net.Conn) {
 		}
 
 		for {
-			utils.Ansi("\033[90B")
-			fmt.Print(":")
+			fmt.Print(">")
 			time.Sleep(time.Millisecond * 100)
 
 			text := input.Username + "> "
