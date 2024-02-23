@@ -103,7 +103,7 @@ func GetRandomString(strings []string, username string) string {
 		seed += int64(aton(char))
 	}
 
-	rand.New(rand.NewSource(seed))
+	rand.Seed(seed)
 
 	randomIndex := rand.Intn(len(strings))
 	return strings[randomIndex]
