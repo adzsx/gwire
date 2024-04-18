@@ -9,6 +9,7 @@ import (
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
+	"github.com/adzsx/gwire/internal/netcli"
 	"github.com/adzsx/gwire/internal/utils"
 )
 
@@ -159,8 +160,17 @@ func setup(version string) {
 		}
 
 		if clear {
+			var err string
+			if input.Action == "listen" {
+				err = netcli.HostSetup(input, true)
+			} else {
+				err = netcli.ClientSetup(input, true)
+			}
 			chatW.Show()
 			AddMsg("This is the start of the conversation")
+			if err != "" {
+				AddErr(err)
+			}
 			connected()
 			w.Close()
 		}

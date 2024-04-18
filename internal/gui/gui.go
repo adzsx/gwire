@@ -6,7 +6,9 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
+	"github.com/adzsx/gwire/internal/netcli"
 )
 
 var (
@@ -14,6 +16,7 @@ var (
 	messages *widget.List
 	con      *widget.Label
 	text     []string
+	errorW   *widget.Label
 )
 
 func chat(version string) {
@@ -24,15 +27,25 @@ func chat(version string) {
 	if len(input.Port) > 1 {
 		con = widget.NewLabel(strings.Join(input.Port, ", "))
 	} else if input.Port != nil {
-		con = widget.NewLabel(input.Ip + ":" + input.Port[0])
+		if errorW.Text == "" {
+			con = widget.NewLabel(input.Ip + ":" + input.Port[0])
+		} else {
+			con = widget.NewLabel("Not conencted: " + input.Ip + ":" + input.Port[0])
+		}
 	} else {
 		con = widget.NewLabel("Not Connected")
 	}
+
+	errorW = widget.NewLabel("")
 
 	quit := widget.NewButton("Quit", func() {
 		os.Exit(0)
 	})
 
+	retry := widget.NewButton("Reconnect", func() {
+		err := netcli.ClientSetup(input, true)
+		AddErr(err)
+	})
 	// Create the listbox
 
 	messages = widget.NewList(
@@ -55,8 +68,11 @@ func chat(version string) {
 		AddMsg(entry.Text)
 	})
 
+	spacer := layout.NewSpacer()
+	spacer.Resize(fyne.NewSize(2000, 50))
+
 	content := container.NewBorder(
-		container.NewHBox(container.NewCenter(quit), container.NewCenter(con)),
+		container.NewHBox(container.NewCenter(quit), container.NewCenter(con), container.NewCenter(spacer), container.NewCenter(errorW), container.NewCenter(retry)),
 
 		container.NewGridWithColumns(2, entry, container.NewHBox(send)),
 
@@ -86,4 +102,12 @@ func AddMsg(msg string) {
 	if messages.Length() > 0 {
 		messages.ScrollToBottom()
 	}
+}
+
+func AddErr(err string) {
+	if err == "" {
+		return
+	}
+	errorW.Text = err
+	errorW.Refresh()
 }

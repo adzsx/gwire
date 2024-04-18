@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/adzsx/gwire/internal/crypt"
 	"github.com/adzsx/gwire/internal/utils"
-	"github.com/adzsx/gwire/pkg/crypt"
 )
 
 var (
@@ -21,7 +21,7 @@ var (
 )
 
 // Function connects to host with TCP
-func ClientSetup(input utils.Input, graphics bool) {
+func ClientSetup(input utils.Input, graphics bool) string {
 	log.SetFlags(0)
 	if input.Time {
 		log.SetFlags(log.Ltime)
@@ -40,7 +40,8 @@ func ClientSetup(input utils.Input, graphics bool) {
 	}
 
 	if err != nil && strings.Contains(err.Error(), "connect: connection refused") {
-		utils.Err(errors.New("connection refused by destination"), true)
+		utils.Err(errors.New("connection refused by destination"), false)
+		return "connection refused by destination"
 	}
 
 	utils.Print("Connected to "+input.Ip+":"+input.Port[0]+"\n", 0)
@@ -52,6 +53,7 @@ func ClientSetup(input utils.Input, graphics bool) {
 
 	utils.Print("Setup finished", 1)
 	client(input, conn)
+	return ""
 }
 
 // Function for ongoing connection

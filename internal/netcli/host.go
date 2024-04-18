@@ -12,8 +12,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/adzsx/gwire/internal/crypt"
 	"github.com/adzsx/gwire/internal/utils"
-	"github.com/adzsx/gwire/pkg/crypt"
 )
 
 var (
@@ -24,7 +24,7 @@ var (
 )
 
 // Set up listener for each port on list
-func HostSetup(input utils.Input, graphics bool) {
+func HostSetup(input utils.Input, graphics bool) string {
 	// Global slice for distributing messages
 	var message = [][]string{}
 
@@ -33,7 +33,8 @@ func HostSetup(input utils.Input, graphics bool) {
 		var err error
 		utils.Print("Generating password\n", 2)
 		input.Enc, err = crypt.GenPasswd()
-		utils.Err(err, true)
+		utils.Err(err, false)
+		return err.Error()
 	}
 	// Set up listener for every port in range
 	for _, port := range input.Port {
@@ -49,6 +50,8 @@ func HostSetup(input utils.Input, graphics bool) {
 	wg.Wait()
 
 	defer os.Exit(0)
+
+	return ""
 }
 
 func connSetup(input utils.Input, port string, message *[][]string) {
