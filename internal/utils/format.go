@@ -5,12 +5,14 @@ import (
 	"log"
 	"net"
 	"os"
+	"runtime"
 	"strconv"
 	"strings"
 )
 
 var (
 	verbose int
+	format  bool = true
 )
 
 type Input struct {
@@ -25,7 +27,7 @@ type Input struct {
 
 func Format(args []string) Input {
 
-	if len(args) < 2 {
+	if len(args) < 2 && !InSlice(args, "--help") {
 		log.Println("Enter --help for help")
 		os.Exit(0)
 	}
@@ -73,15 +75,6 @@ func Format(args []string) Input {
 			} else if len(args[index+1]) == 32 {
 				input.Enc = args[index+1]
 			}
-		case "d", "-no-encryption":
-			input.Enc = ""
-			Print("No encryption", 2)
-
-		case "u", "-username":
-			input.Username = args[index+1]
-
-		case "t", "-time":
-			input.Time = true
 
 		case "s", "-slowmode":
 			if InSlice(args, "-l") {
@@ -97,6 +90,19 @@ func Format(args []string) Input {
 
 				input.TimeOut = num * 1000
 			}
+
+		case "d", "-no-encryption":
+			input.Enc = ""
+			Print("No encryption", 2)
+
+		case "u", "-username":
+			input.Username = args[index+1]
+
+		case "t", "-time":
+			input.Time = true
+
+		case "f", "-format":
+			format = false
 
 		case "v", "-verbose":
 			if len(args) < index+2 || args[index+1][:1] == "-" {
@@ -135,6 +141,10 @@ func Format(args []string) Input {
 
 	if input.TimeOut < 100 {
 		input.TimeOut = 100
+	}
+
+	if runtime.GOOS == "windows" {
+		format = false
 	}
 	return input
 }

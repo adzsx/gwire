@@ -5,7 +5,6 @@ import (
 	"log"
 	"math/rand"
 	"os"
-	"runtime"
 	"strings"
 )
 
@@ -34,6 +33,9 @@ func InSlice(s []string, str string) bool {
 func Print(v any, level int) {
 
 	Ansi("\033[33m")
+	Ansi("\x1b[s\033[999B")
+	fmt.Println()
+	Ansi("\033[2A\033[999D\033[K\033[L")
 
 	log.SetFlags(log.Ltime)
 
@@ -41,17 +43,11 @@ func Print(v any, level int) {
 		log.Print("System: ", v)
 	}
 
-	Ansi("\033[0m")
-}
-
-func getOS() string {
-	return runtime.GOOS
+	Ansi("\033[0m\x1b[u")
 }
 
 func Ansi(inp string) {
-	os := getOS()
-
-	if os != "windows" {
+	if format {
 		fmt.Print(inp)
 	}
 }
@@ -87,10 +83,6 @@ func FilterChar(str string, char string, before bool) string {
 	}
 
 	return final
-}
-
-func Nothing() {
-
 }
 
 func aton(letter rune) int {

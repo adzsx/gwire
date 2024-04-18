@@ -25,11 +25,11 @@ Flags:
 	-p, --port 		[port]		use port [port]
 	-h, --host 		[host]		Connect to [host]-(Ip)
 	-v, --verbose		[level]		Show some more info levels: 1-3
+	-f, --format				Enable ANSI formatting
 	-u, --username 		[username]	[username] is didsplayed for other users
 	-t, --time				enable timestamps
-	-s, --slowmode		[seconds]	Enable slowmode
 	-e, --encrypt		[password]	use AES instead of RSA
-	-d, --no-encryption			Do not use encryption (Not recommended)
+	-d, --no-encryption			Do not use encryption
 	`
 
 	version = "gwire v1.4.0"
