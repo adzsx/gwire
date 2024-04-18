@@ -24,9 +24,10 @@ var (
 )
 
 // Set up listener for each port on list
-func HostSetup(input utils.Input, graphics bool) string {
+func HostSetup(input utils.Input, graphics bool, rec chan string) string {
 	// Global slice for distributing messages
 	var message = [][]string{}
+	rcv = rec
 
 	if input.Enc == "auto" {
 		auto = true
@@ -34,8 +35,11 @@ func HostSetup(input utils.Input, graphics bool) string {
 		utils.Print("Generating password\n", 2)
 		input.Enc, err = crypt.GenPasswd()
 		utils.Err(err, false)
-		return err.Error()
+		if err != nil {
+			return err.Error()
+		}
 	}
+
 	// Set up listener for every port in range
 	for _, port := range input.Port {
 

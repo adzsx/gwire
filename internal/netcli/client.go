@@ -18,15 +18,17 @@ import (
 var (
 	conn net.Conn
 	err  error
+	rcv  chan string
 )
 
 // Function connects to host with TCP
-func ClientSetup(input utils.Input, graphics bool) string {
+func ClientSetup(input utils.Input, graphics bool, rec chan string) string {
 	log.SetFlags(0)
 	if input.Time {
 		log.SetFlags(log.Ltime)
 	}
 
+	rcv = rec
 	// Connect to host
 
 	if input.Ip != "scan" {

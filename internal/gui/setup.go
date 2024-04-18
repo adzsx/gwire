@@ -161,10 +161,10 @@ func setup(version string) {
 
 		if clear {
 			var err string
-			if input.Action == "listen" {
-				err = netcli.HostSetup(input, true)
+			if input.Action == "connect" {
+				err = netcli.ClientSetup(input, true, received)
 			} else {
-				err = netcli.ClientSetup(input, true)
+				err = netcli.HostSetup(input, true, received)
 			}
 			chatW.Show()
 			AddMsg("This is the start of the conversation")

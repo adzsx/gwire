@@ -3,6 +3,7 @@ package gui
 import (
 	"os"
 	"strings"
+	"time"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -17,6 +18,7 @@ var (
 	con      *widget.Label
 	text     []string
 	errorW   *widget.Label
+	received chan string = make(chan string)
 )
 
 func chat(version string) {
@@ -43,7 +45,7 @@ func chat(version string) {
 	})
 
 	retry := widget.NewButton("Reconnect", func() {
-		err := netcli.ClientSetup(input, true)
+		err := netcli.ClientSetup(input, true, received)
 		AddErr(err)
 	})
 	// Create the listbox
@@ -82,6 +84,14 @@ func chat(version string) {
 		container.NewStack(messages),
 	)
 	chatW.SetContent(content)
+	go ListenMsg()
+}
+
+func ListenMsg() {
+	for {
+		time.Sleep(time.Second)
+		AddMsg(<-received)
+	}
 }
 
 func connected() {

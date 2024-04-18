@@ -37,6 +37,7 @@ Flags:
 	input utils.Input
 
 	graphics bool
+	buf      chan string
 )
 
 func main() {
@@ -62,10 +63,10 @@ func main() {
 		}
 
 		if input.Action == "listen" {
-			netcli.HostSetup(input, graphics)
+			netcli.HostSetup(input, graphics, buf)
 
 		} else if input.Action == "connect" {
-			netcli.ClientSetup(input, graphics)
+			netcli.ClientSetup(input, graphics, buf)
 		} else if input.Action == "info" {
 
 			ip, mask, nHosts := netcli.Info()
