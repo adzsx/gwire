@@ -145,22 +145,13 @@ func host(input utils.Input, conn net.Conn, port string, message *[][]string) {
 
 			if len(receivedHost) != 0 {
 
-				utils.Ansi("\x1b[s\033[999B")
-				fmt.Println()
-				utils.Ansi("\033[2A\033[999D\033[K\033[L")
-
 				if len([]byte(input.Enc)) != 0 {
 					data = crypt.DecryptAES(receivedHost[0], []byte(input.Enc)) + "\n"
 				} else {
 					data = receivedHost[0] + "\n"
 				}
 
-				color := utils.GetRandomString(colorList, utils.FilterChar(data, ">", true))
-
-				utils.Ansi(color)
-				fmt.Print(data)
-
-				utils.Ansi("\x1b[u")
+				AddMsg(data, false)
 
 				receivedHost = utils.Remove(receivedHost, receivedHost[0])
 			}
@@ -177,6 +168,7 @@ func host(input utils.Input, conn net.Conn, port string, message *[][]string) {
 		}
 
 		for {
+			fmt.Print("\033[999B\033[999D")
 			fmt.Print(">")
 
 			// attach username
@@ -185,11 +177,9 @@ func host(input utils.Input, conn net.Conn, port string, message *[][]string) {
 
 			text += inp
 
-			utils.Ansi("\033[F\033[0K\033[F\033[0K\033[37m")
-			fmt.Println(text)
+			utils.Ansi("\033[1A\033[K")
 
-			// Move back down, print in white
-			utils.Ansi("\033[2B\033[37m")
+			AddMsg(text, false)
 
 			if text[len(text)-1:] == "\n" {
 				text = strings.Replace(text, "\n", "", 1)
